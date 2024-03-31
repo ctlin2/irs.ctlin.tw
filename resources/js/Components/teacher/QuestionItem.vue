@@ -5,7 +5,9 @@
     .flex.flex-col
         div 題目：
         textarea.rounded-md(style="width: 700px; height: 80px;" v-model="question.name")
-    .flex
+        img(v-show="question.media_type == 'image'" :src="url" style="max-width:700px;")
+        //- img added by C.T.Lin //  
+    .flex 
         PrimaryButton(@click="onClickAddOption") add option
     .flex.flex-col.gap-2(v-for="(item, index) in options")
         | 選項 {{ index + 1 }}
@@ -13,7 +15,7 @@
             textarea.rounded-md(style="width: 600px; height: 60px;" v-model="item.name" )
             label.flex.gap-2
                 div 正確答案
-                TextInput(type="radio" :value="1" name="isCorrect" v-model="item.is_correct" :checked="item.is_correct")
+                TextInput(type="checkbox" :value="1" name="isCorrect" v-model="item.is_correct" :checked="item.is_correct")
             PrimaryButton(@click="onClickDelOption(item.id, index)" class="!bg-red-500")
                 | 刪除
 
@@ -61,6 +63,8 @@ const topic = computed<number>({
     get: () => question.value?.topic_id,
     set: (val) => emit('changeTopic', val),
 });
+
+const url = computed(() => '/storage/images/' + question.value.media_url ); // added by C.T.Lin
 
 /* methods */
 

@@ -40,9 +40,9 @@ class QuizC extends BaseController
     public function topicPost(Request $req)
     {
         $action = $req->get('_action');
-        if (!$this->hasSessionInfo()) {
-            return redirect('teacher/course');
-        }
+        // if (!$this->hasSessionInfo()) {
+        //     return redirect('teacher/course');
+        // }
         $course_id = session('course_id');
         $course_date = session('course_date');
 
@@ -147,17 +147,26 @@ class QuizC extends BaseController
     }
 
     private function addQuestion(Request $req){
-//        Log::info('addQuestion'.json_encode($req->all()));
+       Log::info('addQuestion'.json_encode($req->all()));
         $vue_q_obj=$req->get('question');
         $q_name=$vue_q_obj['name'];
         $q_type_id=$vue_q_obj['question_type_id'];
         $q_topic_id=$vue_q_obj['topic_id'];
+        $q_options= $req->get('q_options');
+
+        // added by C.T.Lin to determinate multiple answers.
+        $len_correct = 0;
+        foreach($q_options as $q_option){
+            if ($q_option['is_correct'] !== false){
+                ++$len_correct;
+            };
+        }
         $q_rd=Question::create([
             'name'=>$q_name,
-            'question_type_id'=>$q_type_id,
+            'question_type_id'=>$len_correct > 1 ? 2 : $q_type_id, // modified by C.T.Lin
             'is_active'=>1,
         ]);
-        $q_options= $req->get('q_options');
+        
         foreach($q_options as $q_option){
             QuestionOption::create([
                'question_id'=>$q_rd->id,

@@ -9,7 +9,7 @@ Head(title="主題管理")
             PrimaryButton(@click="changeTopic") 修改當前主題
             PrimaryButton(@click="delTopic" class="!bg-red-500") 刪除當前主題
         .flex.gap-4
-            | 當期主題:
+            | 當前主題:
             div(v-for="(item, index) in select_topic_ids")
                 | {{ getTopicName(item) }} /
         .flex.gap-4

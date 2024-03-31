@@ -11,6 +11,8 @@ export interface Question {
     name: string,
     question_type_id: number,
     topic_id: number,
+    media_url?: string, // added by C.T.Lin
+    media_type?: string, // added by C.T.Lin
 }
 
 export interface QOption {
