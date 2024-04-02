@@ -174,7 +174,7 @@ const postData = (data: object): void => {
     useForm(data).post('/teacher/quiz');
 }
 
-const submitAddQuiz = () => {
+const submitAddQuiz = () => {  
     let data = {
         _action: 'add_quiz',
         question_id: currentQuestionId.value,

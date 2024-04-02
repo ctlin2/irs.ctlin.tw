@@ -262,7 +262,7 @@ class QuizC extends BaseController
 //            return redirect('teacher/course');
 //        }
         $course_id = session('course_id');
-        $course_date = session('course_date');
+        $course_date = session('course_date'); // useless
 
         $question_ids=[];
         $questions=[];
@@ -280,6 +280,7 @@ class QuizC extends BaseController
             $topicable_ids=Topicable::where('topicable_type', 'questions')->pluck('topicable_id')->all();
             $questions=Question::whereNotIn('id',$topicable_ids)->get();
         }
+
         foreach($questions as $question){
             $topicable_rd=Topicable::where('topicable_id',$question->id)->where('topicable_type','questions')->get()->first();
             if($topicable_rd){
@@ -296,14 +297,24 @@ class QuizC extends BaseController
         $course_quiz_rds = Course_quiz::from('course_quizzes as t1')
             ->join('questions as t2', 't1.question_id', '=', 't2.id')
             ->where('t1.course_id', $course_id)
-            ->where('t1.course_date', $course_date)
+            // ->where('t1.course_date', $course_date) // deleted by C.T.Lin 
             ->select('t1.*', 't2.name')->get();
+    
+        // 對每一個測驗(quiz)，計算有多少人已作答，其中有多少人簽對
         $report=null;
+        // foreach($course_quiz_rds as $course_quiz_rd){
+        //     $quiz_id=$course_quiz_rd->id;
+        //     $get_report_data = DB::select("CALL quiz_report(?)", array($quiz_id))[0];
+        //     // ToDo: for multiple_answer questions
+        //     $report[$quiz_id]['std_answer_num']=intval($get_report_data->total_count) ?? 0;
+        //     $report[$quiz_id]['std_answer_correct_num']=intval($get_report_data->is_correct_1_count) ?? 0;
+        // }
         foreach($course_quiz_rds as $course_quiz_rd){
             $quiz_id=$course_quiz_rd->id;
-            $get_report_data = DB::select("CALL quiz_report(?)", array($quiz_id))[0];
-            $report[$quiz_id]['std_answer_num']=intval($get_report_data->total_count) ?? 0;
-            $report[$quiz_id]['std_answer_correct_num']=intval($get_report_data->is_correct_1_count) ?? 0;
+            $no_attempts = Course_attempt::where('course_quiz_id', $quiz_id)->count();
+            $no_correct_attempts = 0;
+            $report[$quiz_id]['std_answer_num']=intval($no_attempts) ?? 0;
+            $report[$quiz_id]['std_answer_correct_num']=intval($no_correct_attempts) ?? 0;
         }
 
         if($req->has('json')) {
@@ -323,7 +334,7 @@ class QuizC extends BaseController
                     'course_quiz_rds'=>$course_quiz_rds,
                     'report'=>$report,
                     'course_id'=>$course_id,
-                    'course_date'=>$course_date
+                    'course_date'=>$course_date // not needed. quiz alwasys been done today.
                 ]);
         }
     }
@@ -382,6 +393,9 @@ class QuizC extends BaseController
         // course_id,course_date , topic_id
         // if there are course_id & course_date then get the quiz
         // chose a question assign to quiz_questions
+
+        if ($req->get('question_id') == null)
+            return redirect('teacher/quiz');
 
         $expired_time_min=$req->get('expired_time')??5;
         $created_at= Carbon::now();

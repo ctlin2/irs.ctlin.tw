@@ -13,7 +13,9 @@ Head(title="課堂測驗")
             .py-4.px-8
                 .flex.flex-col.gap-4
                     label.flex.gap-2.items-center(v-for="(item, index) in q_option")
-                        TextInput(type="radio" name="ans" v-model="chooseAns" :value="item.id")
+                        TextInput(v-if="single_answer" type="radio" name="ans" v-model="chooseAns" :value="item.id")
+                        TextInput(v-if="multiple_answer" type="checkbox" name="ans"
+                        v-on:click="()=>{selectOpts(item.id)}") :value="item.id")
                         | {{ getAlpha(index) }}.
                         | {{ item.name }}
             PrimaryButton(@click="submit") 送出
@@ -28,8 +30,6 @@ import { Question, QOption, CourseQuiz} from '@/Components/teacher/UtilsType';
 import TextInput from "@/Components/TextInput.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 
-
-
 const props = defineProps<{
     quiz: CourseQuiz,
     question: Question,
@@ -39,6 +39,7 @@ const props = defineProps<{
 /* data */
 
 const chooseAns = ref<number>(null);
+const selected = ref([]);
 
 const my_class = reactive([
     {id: 1, class_name: '資工一A', course_title: '離散數學'}
@@ -51,16 +52,29 @@ const my_groups = reactive([
 
 const hasNotQuiz = computed(() => props.quiz === null);
 
+const single_answer = computed(() => props.question.question_type_id === 1);
+const multiple_answer = computed(() => props.question.question_type_id === 2);
+
 /* methods */
 
 const getAlpha = (shift: number) => {
     return String.fromCharCode(65 + shift);
 }
 
+const selectOpts = (id: number) => {
+    //in here you can check what ever condition  before append to array.
+    if(selected.value.indexOf(id) !== -1){  // already in array
+        selected.value =_.without(selected.value, id)  // toggle out
+    }else{
+        selected.value.push(id)
+    }
+}
+
 const submit = () => {
     useForm({
         course_quiz_id: props.quiz.id,
         q_option_id: chooseAns.value,
+        selected: selected.value,
     }).post('/student/quiz');
 }
 

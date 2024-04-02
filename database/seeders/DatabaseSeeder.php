@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Harishdurga\LaravelQuiz\Models\QuestionType;
 
 class DatabaseSeeder extends Seeder
 {
@@ -12,6 +13,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Model::unguard();
+        $seeders = array ('Database\Seeders\QuestionTypeSeeder', 'Database\Seeders\InsertSeeder');
+
+        foreach ($seeders as $seeder)
+        {
+            $this->call($seeder);
+        }
+
         // \App\Models\User::factory(10)->create();
 
         // \App\Models\User::factory()->create([

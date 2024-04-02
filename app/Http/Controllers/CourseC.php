@@ -196,13 +196,18 @@ class CourseC extends BaseController
         return response()->json($rds);
     }
 
+    /* ==============================================
+        Retrieve students and groups data for 
+        given: course_id and course_date
+    ============================================== */
     private function coursePost_OpenCourse(Request $req){
         // generate s_point,g_point
         $course_id = $req->get('course_id');
         $course_date = $req->get('course_date');
-        $students=Student::where('course_id',$course_id)->get();
+        $students=Student::where('course_id',$course_id)->get(); // ToDo (*important): a student may "takes" many courses. 
         $course_rd=Course::find($course_id);
         foreach($students as $student){
+            // ToDo: retrieve the last status of the student?
             S_point::create([
                 'std_id'=>$student->id,
                 'course_id'=>$course_id,
@@ -211,7 +216,7 @@ class CourseC extends BaseController
                 's_point'=>$course_rd->def_s_point
             ]);
         }
-        $groups=Group::where('course_id',$course_id)->get();
+        $groups=Group::where('course_id',$course_id)->get();  // groups permanent or per date?
         foreach($groups as $group){
             G_point::create([
                'group_id'=>$group->id,
