@@ -83,10 +83,10 @@ Route::middleware('ksu')->group(function () {
 });
 
 Route::prefix('student')->group(function(){
-   Route::get('login',[StudentC::class,'login']);
-   Route::post('login',[StudentC::class,'loginPost']);
-   Route::get('quiz',[StudentC::class,'quiz']);
-   Route::post('quiz',[StudentC::class,'quizPost']);
+   Route::get('login',[StudentC::class,'login'])->middleware(['auth', 'verified']);
+   Route::post('login',[StudentC::class,'loginPost'])->middleware(['auth', 'verified']);
+   Route::get('quiz',[StudentC::class,'quiz'])->middleware(['auth', 'verified']);
+   Route::post('quiz',[StudentC::class,'quizPost'])->middleware(['auth', 'verified']);
 });
 
 

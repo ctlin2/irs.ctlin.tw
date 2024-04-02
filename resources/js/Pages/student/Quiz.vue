@@ -10,6 +10,8 @@ Head(title="課堂測驗")
         .flex-flex-col.gap-4.p-4(v-else)
             div
                 | {{ question.name }}
+            img(v-show="question.media_type == 'image'" :src="url" style="max-width:700px;")
+            //- img added by C.T.Lin //
             .py-4.px-8
                 .flex.flex-col.gap-4
                     label.flex.gap-2.items-center(v-for="(item, index) in q_option")
@@ -54,6 +56,7 @@ const hasNotQuiz = computed(() => props.quiz === null);
 
 const single_answer = computed(() => props.question.question_type_id === 1);
 const multiple_answer = computed(() => props.question.question_type_id === 2);
+const url = computed(() => '/storage/images/' + props.question.media_url ); // added by C.T.Lin
 
 /* methods */
 

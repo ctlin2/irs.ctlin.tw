@@ -22,13 +22,14 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 
 
 const props = defineProps<{
-    e_msg: string,
+    e_msg?: string,
+    std_no?: string
 }>();
 
 /* data */
 
 const form = useForm({
-    std_no: '',
+    std_no: props.std_no
 });
 
 /* methods */

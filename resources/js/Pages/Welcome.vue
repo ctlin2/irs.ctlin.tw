@@ -259,7 +259,7 @@ defineProps({
                         </svg>
                     </a>
 
-                    <a href="https://laravel-news.com"
+                    <a href="/student/login"
                         class="scale-100 p-6 bg-white dark:bg-gray-800/50 dark:bg-gradient-to-bl from-gray-700/50 via-transparent dark:ring-1 dark:ring-inset dark:ring-white/5 rounded-lg shadow-2xl shadow-gray-500/20 dark:shadow-none flex motion-safe:hover:scale-[1.01] transition-all duration-250 focus:outline focus:outline-2 focus:outline-red-500">
                         <div>
                             <div
@@ -271,12 +271,11 @@ defineProps({
                                 </svg>
                             </div>
 
-                            <h2 class="mt-6 text-xl font-semibold text-gray-900 dark:text-white">Laravel News</h2>
+                            <h2 class="mt-6 text-xl font-semibold text-gray-900 dark:text-white">學生作答</h2>
 
                             <p class="mt-4 text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
-                                Laravel News is a community driven portal and newsletter aggregating all of the latest
-                                and most important news in the Laravel ecosystem, including new package releases and
-                                tutorials.
+                                需要先用您的email登入才能作答哦.<br>
+                                註冊時姓名請用您的學號。
                             </p>
                         </div>
 
@@ -302,9 +301,7 @@ defineProps({
                             <h2 class="mt-6 text-xl font-semibold text-gray-900 dark:text-white">答題檢討</h2>
 
                             <p class="mt-4 text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
-                                Laravel News is a community driven portal and newsletter aggregating all of the latest
-                                and most important news in the Laravel ecosystem, including new package releases and
-                                tutorials.
+                               正在努力加強功能中....
                             </p>
                         </div>
 

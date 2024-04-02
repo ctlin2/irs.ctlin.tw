@@ -30,7 +30,7 @@ class StudentC extends BaseController
         // jin-mo modify
         session()->forget(['std_id']);  // deleting data
 
-        return $this->toLoginPage();
+        return $this->toLoginPage($req); // modified by C.T.Lin
     }
 
 
@@ -63,7 +63,9 @@ class StudentC extends BaseController
             session(['std_id' => $rd->id]);
             return $this->enterQuiz();
         } else {
-            return $this->toLoginPage('請確認課程或學號是否正確');
+            $req->merge(['msg'=>'請確認課程或學號是否正確']); // added by C.T.Lin
+            // return $this->toLoginPage('請確認課程或學號是否正確');
+            return $this->toLoginPage($req);
         }
 
     }
@@ -78,7 +80,7 @@ class StudentC extends BaseController
 
         if (!$this->hasSessionInfo()) {
 //             return redirect('student/login');
-            return $this->toLoginPage();
+            return $this->toLoginPage($req); // modified C.T.Lin
         }
 
         return $this->enterQuiz();
@@ -110,7 +112,6 @@ class StudentC extends BaseController
                );
            }
            else {
-            //   dd('$selected_options='.json_encode($selected_options));
                 foreach ($selected_options as $option) {
                     $attempt_answer = Course_attempt_answer::updateOrCreate(
                         ['course_attempt_id' => $attempt->id, 
@@ -126,9 +127,11 @@ class StudentC extends BaseController
         
     }
 
-    private function toLoginPage (string $msg='') {
+    // private function toLoginPage (string $msg='') {
+    private function toLoginPage (Request $req) {
         return Inertia::render('student/Login', [
-            'e_msg' => $msg,
+            'e_msg' => $req->get('msg')?? '',
+            'std_no' => $req->user()->name
         ]);
     }
 
