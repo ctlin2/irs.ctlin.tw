@@ -13,20 +13,23 @@ use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Carbon\Carbon;
+use DB;
 
 class PointC extends BaseController
 {
 
+    private function hasSessionInfo(){
+        return session()->has('course_id');
+    }
 
     public function pointBoard(Request $req){
 
-        if (!$req->has('course_id')) {
+        if(!$this->hasSessionInfo()){
             return redirect('teacher/course');
         }
-
-        $course_id = $req->get('course_id');
-        $course_date = $req->get('course_date');
-//        session(['course_id' => $course_id, 'course_date' => $course_date]);
+        $course_id=session('course_id');
+        $course_date=Carbon::today()->format('Y-m-d');
 
         $course = Course::find($course_id);
         $students = Student::where('course_id', $course_id)->get();
@@ -34,14 +37,31 @@ class PointC extends BaseController
             ->join('students as t2', 't1.std_id', '=', 't2.id')
             ->where('t1.course_id', $course_id)
             ->where('t1.course_date', $course_date)
-            ->select('t1.*', 't2.std_no', 't2.std_name')->get();
-
-        $g_points = G_point::from('g_points as t1')
-            ->join('groups as t2', 't1.group_id', '=', 't2.id')
-            ->where('t1.course_id', $course_id)
-            ->where('t1.course_date', $course_date)
-            ->select('t1.*', 't2.no')
+            ->select('t1.*', 't2.std_no', 't2.std_name')
+            ->orderBy('t1.s_point', 'DESC') 
             ->get();
+
+        // $g_points = G_point::from('g_points as t1')
+        //     ->join('groups as t2', 't1.group_id', '=', 't2.id')
+        //     ->where('t1.course_id', $course_id)
+        //     ->where('t1.course_date', $course_date)
+        //     ->select('t1.*', 't2.no')
+        //     ->orderBy('t1.g_point', 'DESC')
+        //     ->get();
+        
+        $g_points = DB::table('g_points')
+        ->join('s_points', 'g_points.group_id', '=', 's_points.group_id')
+        ->join('groups', 'g_points.group_id', '=', 'groups.id')
+        ->where('s_points.course_id', '=', $course_id)
+        ->where('s_points.course_date', '=', $course_date)
+        ->groupBy('g_points.group_id', 'groups.no', 'g_points.g_point')
+        ->select(DB::raw('groups.no, (avg(s_point) + g_points.g_point) as g_point'))
+        ->orderBy('g_point', 'desc')
+        ->get();
+
+        if($req->has('json')) {
+            return response()->json(['g_points' => $g_points]);
+        }
 
         $course_date_list=S_point::distinct()->pluck('course_date');
         if ($req->has('json')) {

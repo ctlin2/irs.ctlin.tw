@@ -294,13 +294,14 @@ class QuizC extends BaseController
 
         $topics=DB::select("CALL get_all_topic()");
 
+        // find all the quizzes in one day
         $course_quiz_rds = Course_quiz::from('course_quizzes as t1')
             ->join('questions as t2', 't1.question_id', '=', 't2.id')
             ->where('t1.course_id', $course_id)
-            // ->where('t1.course_date', $course_date) // deleted by C.T.Lin 
+            ->where('t1.expired_at', '>', Carbon::now()->subDays(1)->format('Y-m-d H:i:s')) // modified by C.T.Lin
             ->select('t1.*', 't2.name')->get();
     
-        // 對每一個測驗(quiz)，計算有多少人已作答，其中有多少人簽對
+        // 對每一個測驗(quiz)，計算有多少人已作答，其中有多少人答對
         $report=null;
         // foreach($course_quiz_rds as $course_quiz_rd){
         //     $quiz_id=$course_quiz_rd->id;

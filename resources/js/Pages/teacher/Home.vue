@@ -49,6 +49,7 @@ BaseLayout
                         | 加扣分：
                     TextInput.text-center(v-model="point_step" @change="change_point_step" style="width: 100px;")
                 PrimaryButton(@click="toQuizPage") 出題測驗
+                PrimaryButton(@click="toRankingPage") 排行榜
             .grid.grid-cols-4.gap-4
                 GroupItem(v-for="(item, index) in groups" :group_info="item" :group_std="filter_students(item.group_id)"
                     :select_group="select_group_id" :select_std="select_std_id"
@@ -308,6 +309,14 @@ const toQuizPage = () => {
     let course_date = students.value[0].course_date;
     // console.log(`course_id = ${course_id}, course_date = ${course_date}`)
     router.get('/teacher/quiz', {
+        // course_id: course_id,
+        // course_date: course_date,
+    });
+}
+
+const toRankingPage = () => {
+    // console.log(`course_id = ${course_id}, course_date = ${course_date}`)
+    router.get('/teacher/ranking_list', {
         // course_id: course_id,
         // course_date: course_date,
     });

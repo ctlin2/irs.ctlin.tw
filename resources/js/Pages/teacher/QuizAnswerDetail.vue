@@ -11,7 +11,8 @@ Head(title="答題分析")
             .flex.p-4.justify-center
                 | 選擇人數：{{ getCount(getStudents(item.id)) }}
             .flex.px-4.py-2.mb-3.font-medium.shadow-md(:class="[showCorrect ? getCorrectStyle(item.is_correct) : '', 'outline-2 outline-offset-1 outline-black']")
-                | ({{ getAlpha(index) }}) {{ item.name }}
+                textarea
+                    | ({{ getAlpha(index) }}) {{ item.name }}
             //.flex.justify-center.items-center.px-4.py-2.mb-3.text-2xl.font-bold(v-show="showCorrect"
             //    :class="[item.is_correct ? 'bg-cyan-500' : 'bg-red-500']")
             //    | {{ item.is_correct ? '正確' : '錯誤' }}

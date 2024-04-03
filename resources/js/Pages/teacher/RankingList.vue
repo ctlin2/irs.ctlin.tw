@@ -57,8 +57,6 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import { Course, Student, Group } from "@/Components/teacher/UtilsType";
 
 
-
-
 const props = defineProps<{
     course: Course,
     students: Array<Student>,
@@ -91,30 +89,6 @@ const class_info = computed<Course>(() => props.course);
 
 const students = computed<Array<Student>>(() => props.students);
 const groups = computed<Array<Group>>(() => props.groups);
-// const students = computed(() => {
-//     return _.transform(_.range(1,10), (res, item, index) => {
-//         res.push({
-//             id: item, // This id is s_points table id.
-//             std_no: `4120E0${_.padStart(_.toString(item), 2, '0')}`,
-//             std_name: '王小明',
-//             group_id: 1,
-//             course_id: 1,
-//             s_point: 50,
-//         });
-//     }, []);
-// });
-//
-// const groups = computed(() => {
-//     return _.transform(_.range(1, 3), (res, item) => {
-//         res.push({
-//             id: item,
-//             group_id: item,
-//             course_id: 1,
-//             no: item,
-//             g_point: 50,
-//         });
-//     }, []);
-// });
 
 const table_data = computed(() => {
 
