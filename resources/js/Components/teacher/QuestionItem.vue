@@ -5,7 +5,7 @@
     .flex.flex-col
         div 題目：
         textarea.rounded-md(style="width: 700px; height: 80px;" v-model="question.name")
-        img(v-show="question.media_type == 'image'" :src="url" style="max-width:700px;")
+        img(v-show="question.media_type == 'image'" :src="url" style="max-width:700px;").w-128
         //- img added by C.T.Lin //  
     .flex 
         PrimaryButton(@click="onClickAddOption") add option

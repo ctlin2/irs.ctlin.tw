@@ -24,7 +24,7 @@ BaseLayout
                     ol.flex.flex-col.gap-4(style="list-style-type: upper-alpha;")
                         li(v-for="(item, index) in currentQOptions")
                             | {{ item.name }}
-                img(v-show="currentQuestionInfo.media_type == 'image'" :src="url" style="max-width:700px;")
+                img(v-show="currentQuestionInfo.media_type == 'image'" :src="url" style="max-width:700px;").mx-auto
                 //- img added by C.T.Lin //
                 .flex.items-center.gap-4
                     | 測驗時間
@@ -121,7 +121,7 @@ const currentQuestionInfo = ref<QuesType>({
     name: '',
     topic_id: null,
     media_type: '', // added  by C.T.Lin
-    media_url: '', // added  by C.T.Lin
+    media_url: 'noimg-200-a.png', // added  by C.T.Lin, default: no image
     question_type_id: 1,
 });
 const currentQOptions = ref<Array<QOption>>([]);
@@ -144,7 +144,7 @@ const qrcodeUrl = computed(() => {
     return `https://${baseUrl}/student/quiz?course_id=${currentCourseId.value}&course_date=${currentCourseDate.value}`
 });
 
-const url = computed(() => '/storage/images/' + currentQuestionInfo.value.media_url ); // added by C.T.Lin
+const url = computed(() => '/storage/images/' + currentQuestionInfo.value.media_url); // added by C.T.Lin
 
 /* methods */
 

@@ -1,16 +1,16 @@
 <template lang="pug">
 
-Head(title="登入")
+Head(title="登入測驗")
 
 .w-screen.h-screen.login-background
     .flex.justify-center.items-center.h-full
         .box
             div
-            div.text-3xl.font-bold 學生登入
+            div.text-3xl.font-bold 學生登入測驗
             div
             TextInput(type="text" placeholder="學號" v-model="form.std_no")
             div.text-red-500(v-if="e_msg !== ''") {{ e_msg }}
-            PrimaryButton.justify-center(@click="login") 登入
+            PrimaryButton.justify-center(@click="login") 登入測驗
 
 </template>
 
