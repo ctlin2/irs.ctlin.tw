@@ -55,7 +55,6 @@ class StudentC extends BaseController
                 $course = Course::find($quiz->course_id);
                 if (!is_null($course) && !is_null(Student::where('id',$rd->id)
                         ->where('course_id', $course->id)->get())){  // ToDo:  a student may take many courses.
-                    // dd('(StudentC/loginPost) session(course_id)');
                     session(['course_id' => $course->id]);
                     break;
                 }
@@ -146,7 +145,7 @@ class StudentC extends BaseController
         $after_ans_quiz_ids = Course_attempt::where('std_id', $std_id)->pluck('course_quiz_id')->all();
         
         $cts = Carbon::now()->format('Y-m-d H:m:s');
-        // dd($cts.';'.date('Y-m-d H:m:s')); // 時間一樣，但與系統時間差異過大？為什麼? C.T.Lin
+        Log::info('(StudentC/loginPost)NOW='.json_encode(date('Y-m-d H:m:s'))); // 時間一樣，但與系統時間差異過大？為什麼? C.T.Lin
         $quiz = Course_quiz::where('course_id', $course_id)
                 // ->whereDate('course_date', Carbon::today()->format('Y-m-d')) // modified by C.T.Lin
                 // ->where('created_at', '<=', $cts)
@@ -155,7 +154,6 @@ class StudentC extends BaseController
                 ->first();
 
         if (!is_null($quiz)) {
-            // dd($quiz->expired_at);
             $question = Question::find($quiz->question_id);
             // using makeHidden method hidden is_correct field
             $q_option = QuestionOption::where('question_id', $quiz->question_id)->get()->makeHidden(['is_correct']);

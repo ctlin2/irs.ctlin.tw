@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\Student;
 
 class ProfileController extends Controller
 {
@@ -33,6 +34,17 @@ class ProfileController extends Controller
 
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;
+        }
+        else if ($request->user()->isDirty('password')) {
+        }
+        else {
+            $student = Student::where('user_id', $request->user()->id)->first();
+            if (!is_null($student)) // confined user id, not allowed to change student number again.
+                return Redirect::route('profile.edit');
+            else {
+                $student = Student::where('std_no', $request->name)->first();
+                $student->update(['user_id' => $request->user()->id]); // confine user id
+            }
         }
 
         $request->user()->save();

@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
+use App\Models\Student;
 
 class RegisteredUserController extends Controller
 {
@@ -42,6 +43,11 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
+
+        $student = Student::where('std_no', $request->name)->first();
+        if (!is_null($student)){
+            $student->user_id = $user->id; // confine user id
+        }
 
         event(new Registered($user));
 
