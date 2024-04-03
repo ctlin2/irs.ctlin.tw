@@ -46,7 +46,7 @@ class RegisteredUserController extends Controller
 
         $student = Student::where('std_no', $request->name)->first();
         if (!is_null($student)){
-            $student->user_id = $user->id; // confine user id
+            $student->update(['user_id' => $user->id]); // confine user id
         }
 
         event(new Registered($user));
