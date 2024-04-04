@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('course_quiz_id')->constrained(
                 table: 'course_quizzes'
-            );
+            )->onDelete('cascade');
             $table->foreignId('std_id')->constrained(  // participant
                 table: 'students'
-            );
+            )->onDelete('cascade');
             // $table->string('participant_type');
             // $table->foreignId('q_option_id')->constrained(
             //     table: 'question_options'

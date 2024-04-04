@@ -53,6 +53,7 @@ class PointC extends BaseController
         ->join('s_points', 'g_points.group_id', '=', 's_points.group_id')
         ->join('groups', 'g_points.group_id', '=', 'groups.id')
         ->where('s_points.course_id', '=', $course_id)
+        ->where('g_points.course_date', '=', $course_date)
         ->where('s_points.course_date', '=', $course_date)
         ->groupBy('g_points.group_id', 'groups.no', 'g_points.g_point')
         ->select(DB::raw('groups.no, (avg(s_point) + g_points.g_point) as g_point'))
@@ -75,9 +76,6 @@ class PointC extends BaseController
                    'course_date_list'=>$course_date_list
                 ]);
         }
-
-
-
     }
 
 }

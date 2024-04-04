@@ -20,6 +20,7 @@ use App\Models\Course;
 use App\Models\Course_attempt;
 use App\Models\Course_attempt_answer;
 use App\Models\Course_quiz;
+use App\Models\User;
 use Log;
 
 class StudentC extends BaseController
@@ -47,7 +48,9 @@ class StudentC extends BaseController
         $rd = Student::where('std_no', $std_no)->first(); // C.T.Lin
         // Log::info('(StudentC/loginPost)$rd='.json_encode($rd));
 
-        if (!is_null($rd)) {
+        // $login_std_no = User::find($req->user()->id)->name;
+
+        if (!is_null($rd) && $rd->user_id === $req->user()->id) {  // modified by C.T.Lin to avoid user faking ID
             // find the active quizzes and the corresponding courses
             $quizzes = Course_quiz::where('created_at', '<', Carbon::now())
                               ->where('expired_at', '<', Carbon::now())->get();
@@ -72,14 +75,15 @@ class StudentC extends BaseController
 
     // jin-mo modify
     public function quiz(Request $req) {
-        if ($req->has(['course_id', 'course_date'])) {
-            session($req->only(['course_id', 'course_date'])); 
-            // Bug: take effects only on teacher's browser, not students' browser.
-        }
+        Log::info('(StudentC/quiz quiz())$req->course_id='.json_encode($req->course_id).', course_date'.json_encode($req->course_date));  // added by C.T.Lin
+        // if ($req->has(['course_id', 'course_date'])) {
+        //     session($req->only(['course_id', 'course_date'])); 
+        //     // Bug: take effects only on teacher's browser, not students' browser.
+        // }
 
         if (!$this->hasSessionInfo()) {
 //             return redirect('student/login');
-            return $this->toLoginPage($req); // modified C.T.Lin
+            return $this->toLoginPage($req); // modified C.T.Lin to provide default student number for login.
         }
 
         return $this->enterQuiz();
@@ -87,9 +91,10 @@ class StudentC extends BaseController
 
 
     public function quizPost(Request $req){
-        $q_option_id = $req->get('q_option_id');
         $course_quiz_id = $req->get('course_quiz_id');
-        $selected_options = $req->get('selected'); 
+        $q_option_id = $req->get('q_option_id');  // for single-answer question
+        $selected_options = $req->get('selected');  // for multiple-answer question
+        $answer = $req->get('answer');  // for fill-in question
         $std_id = session('std_id');
 
         $quiz = Course_quiz::find($course_quiz_id);
@@ -97,34 +102,38 @@ class StudentC extends BaseController
         $expired_at = Carbon::parse($quiz->expired_at);
 
         if ($cts->lt($expired_at)) {
-            $attempt = Course_attempt::updateOrCreate(
-                ['course_quiz_id' => $course_quiz_id, 'std_id' => $std_id],
-                ['q_option_id' => $q_option_id]
-           );
+            $attempt = Course_attempt::create([
+                'course_quiz_id' => $course_quiz_id, 
+                'std_id' => $std_id,
+            ]);
 
-           // assert $attempt->id not null
-           if (!is_null($q_option_id)){  // single answer
-               $attempt_answer = Course_attempt_answer::updateOrCreate(
-                ['course_attempt_id' => $attempt->id, 
-                 'quiz_question_id' => $attempt->question_id,
-                 'question_option_id' => $q_option_id]
-               );
-           }
-           else {
+            // assert $attempt->id not null
+            if (!is_null($q_option_id)){  // single-answer question
+                $attempt_answer = Course_attempt_answer::Create([
+                    'course_attempt_id' => $attempt->id, 
+                    'quiz_question_id' => $attempt->question_id,
+                    'question_option_id' => $q_option_id
+                ]);
+            }
+            else if (!is_null($answer)){ // fill-in question
+                $attempt_answer = Course_attempt_answer::Create([
+                    'course_attempt_id' => $attempt->id, 
+                    'quiz_question_id' => $attempt->question_id,
+                    'answer' => $answer
+                ]);
+            }
+            else { // multiple-answer question
                 foreach ($selected_options as $option) {
-                    $attempt_answer = Course_attempt_answer::updateOrCreate(
-                        ['course_attempt_id' => $attempt->id, 
+                    $attempt_answer = Course_attempt_answer::Create([
+                        'course_attempt_id' => $attempt->id, 
                         'quiz_question_id' => $attempt->question_id,
-                        'question_option_id' => $option]
-                    );
+                        'question_option_id' => $option
+                    ]);
                 }
-           }
-           
+            }
         }
-
-        
-        
     }
+
 
     // private function toLoginPage (string $msg='') {
     private function toLoginPage (Request $req) {
@@ -145,7 +154,7 @@ class StudentC extends BaseController
         $after_ans_quiz_ids = Course_attempt::where('std_id', $std_id)->pluck('course_quiz_id')->all();
         
         $cts = Carbon::now()->format('Y-m-d H:m:s');
-        Log::info('(StudentC/loginPost)NOW='.json_encode(date('Y-m-d H:m:s'))); // 時間一樣，但與系統時間差異過大？為什麼? C.T.Lin
+        Log::info('(StudentC/loginPost enerQuiz())NOW='.json_encode(date('Y-m-d H:m:s'))); // 時間一樣，但與系統時間差異過大？為什麼? C.T.Lin
         $quiz = Course_quiz::where('course_id', $course_id)
                 // ->whereDate('course_date', Carbon::today()->format('Y-m-d')) // modified by C.T.Lin
                 // ->where('created_at', '<=', $cts)

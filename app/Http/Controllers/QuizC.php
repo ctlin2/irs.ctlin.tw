@@ -301,21 +301,15 @@ class QuizC extends BaseController
             ->where('t1.expired_at', '>', Carbon::now()->subDays(1)->format('Y-m-d H:i:s')) // modified by C.T.Lin
             ->select('t1.*', 't2.name')->get();
     
-        // 對每一個測驗(quiz)，計算有多少人已作答，其中有多少人答對
+        // for each quiz, summarize how many students have answered and how many of them answer correctly.
         $report=null;
-        // foreach($course_quiz_rds as $course_quiz_rd){
-        //     $quiz_id=$course_quiz_rd->id;
-        //     $get_report_data = DB::select("CALL quiz_report(?)", array($quiz_id))[0];
-        //     // ToDo: for multiple_answer questions
-        //     $report[$quiz_id]['std_answer_num']=intval($get_report_data->total_count) ?? 0;
-        //     $report[$quiz_id]['std_answer_correct_num']=intval($get_report_data->is_correct_1_count) ?? 0;
-        // }
         foreach($course_quiz_rds as $course_quiz_rd){
             $quiz_id=$course_quiz_rd->id;
             $no_attempts = Course_attempt::where('course_quiz_id', $quiz_id)->count();
-            $no_correct_attempts = 0;
+            $get_report_data = DB::select("CALL quiz_report2(?)", array($quiz_id))[0];
+
             $report[$quiz_id]['std_answer_num']=intval($no_attempts) ?? 0;
-            $report[$quiz_id]['std_answer_correct_num']=intval($no_correct_attempts) ?? 0;
+            $report[$quiz_id]['std_answer_correct_num']=intval($get_report_data->correct_count) ?? 0;
         }
 
         if($req->has('json')) {
@@ -349,8 +343,11 @@ class QuizC extends BaseController
 //         $answers = Course_attempt::where('course_quiz_id', $course_quiz_id)->get();
         $answers = Course_attempt::where('course_quiz_id', $course_quiz_id)
                                     ->join('students', 'course_attempts.std_id', '=', 'students.id')
-                                    ->select('course_attempts.*', 'students.std_no', 'students.std_name')
+                                    ->join('course_attempt_answers', 'course_attempt_answers.course_attempt_id', '=', 'course_attempts.id')
+                                    ->select('course_attempt_answers.question_option_id', 'students.std_no', 'students.std_name')
+                                    ->orderby('course_attempt_answers.created_at')
                                     ->get();
+        // ToDo : fill-in question
 
         if($req->has('json')) {
             return response()->json([

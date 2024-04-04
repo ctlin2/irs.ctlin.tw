@@ -10,5 +10,5 @@ class Course_attempt_answer extends Model
     protected $primaryKey = 'id';
     protected $guarded = ['id'];
 
-    public $timestamps = false;
+    public $timestamps = true;
 }

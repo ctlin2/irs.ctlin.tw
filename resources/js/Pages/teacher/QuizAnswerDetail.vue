@@ -49,7 +49,7 @@ const std_answers = computed<Array<StdAnswers>>(() => props.std_answers);
 const q_options = computed<Array<QOption>>(() => props.q_options);
 
 const groupStudents = computed(() => {
-    return _.groupBy(std_answers.value, 'q_option_id');
+    return _.groupBy(std_answers.value, 'question_option_id');
 });
 
 /* methods */
@@ -58,8 +58,8 @@ const getAlpha = (shift: number): string => {
     return String.fromCharCode(65 + shift);
 }
 
-const getStudents = (q_option_id: number): Array<StdAnswers> => {
-    return groupStudents.value[q_option_id];
+const getStudents = (question_option_id: number): Array<StdAnswers> => {
+    return groupStudents.value[question_option_id];
 }
 
 const getCorrectStyle = (is_correct: boolean) => is_correct ? 'bg-cyan-500 ring ring-cyan-700' : 'bg-red-500 ring ring-red-700';

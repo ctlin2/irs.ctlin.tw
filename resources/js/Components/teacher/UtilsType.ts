@@ -80,5 +80,5 @@ export interface Answers {
     id: number,
     course_quiz_id: number,
     std_id: number,
-    q_option_id: number,
+    question_option_id: number, // q_option_id
 }

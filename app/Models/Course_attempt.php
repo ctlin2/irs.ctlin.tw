@@ -16,7 +16,7 @@ class Course_attempt extends Model
     protected $primaryKey = 'id';
     protected $guarded = ['id'];
 
-    public $timestamps = false;
+    public $timestamps = true;
     /**
      * The attributes that should be hidden for serialization.
      *
