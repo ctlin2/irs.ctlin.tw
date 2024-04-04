@@ -104,7 +104,7 @@ Route::middleware('ksu')->group(function () {
 Route::prefix('student')->group(function(){
    Route::get('login',[StudentC::class,'login'])->middleware(['auth', 'verified']);
    Route::post('login',[StudentC::class,'loginPost'])->middleware(['auth', 'verified']);
-   Route::get('quiz',[StudentC::class,'quiz'])->middleware(['auth', 'verified']);
+   Route::get('quiz',[StudentC::class,'quiz'])->middleware(['auth', 'verified'])->name('student.quiz');
    Route::post('quiz',[StudentC::class,'quizPost'])->middleware(['auth', 'verified']);
 });
 
