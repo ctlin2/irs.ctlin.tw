@@ -93,6 +93,7 @@ Route::middleware('ksu')->group(function () {
         Route::post('quiz', [QuizC::class, 'quizPost']);
 
         Route::get('quiz_answer_detail', [QuizC::class, 'quizAnswerDetail']);
+        Route::post('quiz_answer_detail',[QuizC::class, 'quizAnswerDetailPost']); // added by C.T.Lin
 
 //        , function () {
 //        return Inertia::render('teacher/Course');

@@ -3,9 +3,17 @@
 Head(title="答題分析")
 
 .w-screen.h-screen.flex.flex-col
-    .flex.justify-center.p-4
+    .flex.justify-center.p-4.gap-4
         PrimaryButton(@click="toggleShowCorrect")
             | {{ showCorrect ? '隱藏' : '顯示' }}答案
+        PrimaryButton(@click="addStudentPoints")
+            | 答對個人加積點
+        PrimaryButton(@click="addAttendant")
+            | 答題當做出席
+        PrimaryButton(@click="addAbsent")
+            | 未答題當做缺席
+        PrimaryButton(@click="addLeave")
+            | 未答題當做早退
     .flex.gap-4.p-4.justify-center
         .flex.flex-col.truncate(v-for="(item, index) in q_options" style="width: 250px;")
             .flex.p-4.justify-center
@@ -23,7 +31,7 @@ Head(title="答題分析")
 
 <script setup lang="ts">
 import { ref, computed, defineProps } from 'vue';
-import { Head } from "@inertiajs/vue3";
+import { Head, router, useForm } from "@inertiajs/vue3";
 import * as _ from 'lodash';
 import { Question, QOption, Student, Answers } from '@/Components/teacher/UtilsType';
 import PrimaryButton from "@/Components/PrimaryButton.vue";
@@ -32,6 +40,7 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 interface StdAnswers extends Answers{
     std_no: string,
     std_name: string,
+    course_attempt_id: number,
 }
 
 const props = defineProps<{
@@ -67,6 +76,48 @@ const getCorrectStyle = (is_correct: boolean) => is_correct ? 'bg-cyan-500 ring 
 const getCount = (item: StdAnswers[]) => _.size(item);
 
 const toggleShowCorrect = () => showCorrect.value = !showCorrect.value;
+
+const postData = (data: object): void => {
+    console.log(data);
+    useForm(data).post('/teacher/quiz_answer_detail');
+}
+
+const addStudentPoints = () => {
+    let data = {
+        _action: 'add_student_points',
+        student_answers:  _.uniqBy(props.std_answers, 'std_no'),
+    };
+    postData(data);
+};
+
+const addAttendant = () => {
+    let data = {
+        _action: 'add_attendant',
+        course_attempt_id: props.std_answers[0]['course_attempt_id'],
+        student_ids: _.map(_.uniqBy(props.std_answers, 'std_no'), o =>o['std_id']),  // std_no, std_name, course_quiz_id
+    };
+    postData(data);
+};
+
+const addAbsent = () => {
+    let data = {
+        _action: 'add_absent',
+        course_attempt_id: props.std_answers[0]['course_attempt_id'],
+        student_ids: _.map(_.uniqBy(props.std_answers, 'std_no'), o =>o['std_id']),  // std_no, std_name, course_quiz_id
+    };
+    postData(data);
+};
+
+const addLeave = () => {
+    let data = {
+        _action: 'add_leave',
+        course_attempt_id: props.std_answers[0]['course_attempt_id'],
+        // student_numbers: _.map(_.uniqBy(props.std_answers, 'std_no'), o => _.pick(o, ['std_no'])),  // std_no, std_name, course_quiz_id
+        student_ids: _.map(_.uniqBy(props.std_answers, 'std_no'), o =>o['std_id']),  // std_no, std_name, course_quiz_id
+    };
+    postData(data);
+};
+
 
 </script>
 

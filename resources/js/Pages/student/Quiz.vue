@@ -21,7 +21,8 @@ Head(title="課堂測驗")
                         | {{ getAlpha(index) }}.
                         | {{ item.name }}
             PrimaryButton(@click="submit") 送出
-
+            div.text-red-500(v-if="e_msg !== ''") {{ e_msg }}
+            //- added by C.T.Lin 
 </template>
 
 <script setup lang="ts">
@@ -36,6 +37,7 @@ const props = defineProps<{
     quiz: CourseQuiz,
     question: Question,
     q_option: Array<QOption>,
+    e_msg?: string, // added by C.T.Lin
 }>();
 
 /* data */

@@ -43,7 +43,8 @@ class ProfileController extends Controller
                 return Redirect::route('profile.edit');
             else {
                 $student = Student::where('std_no', $request->name)->first();
-                $student->update(['user_id' => $request->user()->id]); // confine user id
+                if(!is_null($request->user()->id))
+                    $student->update(['user_id' => $request->user()->id]); // confine user id
             }
         }
 

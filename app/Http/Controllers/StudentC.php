@@ -50,20 +50,29 @@ class StudentC extends BaseController
 
         // $login_std_no = User::find($req->user()->id)->name;
 
-        if (!is_null($rd) && $rd->user_id === $req->user()->id) {  // modified by C.T.Lin to avoid user faking ID
-            // find the active quizzes and the corresponding courses
-            $quizzes = Course_quiz::where('created_at', '<', Carbon::now())
-                              ->where('expired_at', '<', Carbon::now())->get();
-            foreach ($quizzes as $quiz) {
-                $course = Course::find($quiz->course_id);
-                if (!is_null($course) && !is_null(Student::where('id',$rd->id)
-                        ->where('course_id', $course->id)->get())){  // ToDo:  a student may take many courses.
-                    session(['course_id' => $course->id]);
-                    break;
+        if (!is_null($rd)) {  // modified by C.T.Lin to avoid user faking ID
+            if (is_null($rd->user_id)) {
+                $req->merge(['msg'=>'您的 Profile 需填寫正確學號']); // added by C.T.Lin
+                return $this->toLoginPage($req);
+            } else if ($rd->user_id === $req->user()->id){
+                // find the active quizzes and the corresponding courses
+                $quizzes = Course_quiz::where('created_at', '<', Carbon::now())
+                                ->where('expired_at', '<', Carbon::now())->get();
+                foreach ($quizzes as $quiz) {
+                    $course = Course::find($quiz->course_id);
+                    if (!is_null($course) && !is_null(Student::where('id',$rd->id)
+                            ->where('course_id', $course->id)->get())){  // ToDo:  a student may take many courses.
+                        session(['course_id' => $course->id]);
+                        break;
+                    }
                 }
+                session(['std_id' => $rd->id]);
+                return $this->enterQuiz();
+            }  else {
+                $req->merge(['msg'=>'請確認是您的正確學號']); // added by C.T.Lin
+                // return $this->toLoginPage('請確認課程或學號是否正確');
+                return $this->toLoginPage($req);
             }
-            session(['std_id' => $rd->id]);
-            return $this->enterQuiz();
         } else {
             $req->merge(['msg'=>'請確認課程或學號是否正確']); // added by C.T.Lin
             // return $this->toLoginPage('請確認課程或學號是否正確');
