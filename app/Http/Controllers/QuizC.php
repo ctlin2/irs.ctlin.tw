@@ -395,6 +395,9 @@ class QuizC extends BaseController
             case 'add_absent':
                 $this->addAbsent($req);
                 break;
+            case 'add_leave':
+                $this->addLeave($req);
+                break;
         }
     }
     
@@ -508,58 +511,32 @@ class QuizC extends BaseController
 
     private function addAttendant(Request $req){
         $student_id_array = $req->get('student_ids');
-        $course_attempt_id = $req->get('course_attempt_id');
-
-        $course_attempt = Course_attempt::find($course_attempt_id);
-        $course_quiz = Course_quiz::find($course_attempt->course_quiz_id);
 
         // get students from s_points for course date
-        $s_points = S_point::where('course_id', '=', session('course_id'))  // $course_quiz->course_id
-        ->where('course_date', '=', session('corse_date'))  // Carbon::today()->format('Y-m-d')
-        ->get();
-
-        foreach($s_points as $s_point){
-            if (in_array( $s_point->std_id , $student_id_array, true)){
-                $s_point->update(['status' => 0]); // 出席
-            }
-        }
+        $s_points = S_point::where('course_id', '=', session('course_id'))
+        ->where('course_date', '=', Carbon::parse(session('corse_date'))->format('Y-m-d'))
+        ->whereIn('std_id', $student_id_array)
+        // ->get();
+        ->update(['status' => 0]); // 出席
     }
 
     private function addAbsent(Request $req){
         $student_id_array = $req->get('student_ids');
-        $course_attempt_id = $req->get('course_attempt_id');
-        // dd($student_id_array);
-
-        // if ($student_id_array.length >= 0){
-        //     $course_attempt = Course_attempt::find($course_attempt_id);
-        //     $course_quiz = Course_quiz::find($course_attempt->course_quiz_id);
-        // }
-
-        // dd('course_id='.session('course_id').';course_date='.session('course_date'));
         
         // get students from s_points for course date
         $s_points = S_point::where('course_id', '=', session('course_id'))  // $course_quiz->course_id
-        ->where('course_date', '=', session('course_date'))  // Carbon::today()->format('Y-m-d')
+        ->where('course_date', '=', Carbon::parse(session('corse_date'))->format('Y-m-d'))
         ->whereNotIn('std_id', $student_id_array)
-        ->update(['status' => 4]);
-
-        // foreach($s_points as $s_point){
-        //     if (!in_array( $s_point->std_id , $student_id_array, true)){
-        //         $s_point->update(['status' => 4]); // 缺席
-        //     }
-        // }
+        ->update(['status' => 4]); // 缺席
     }
 
     private function addLeave(Request $req){
         $student_id_array = $req->get('student_ids');
-        $course_attempt_id = $req->get('course_attempt_id');
-
-        $course_attempt = Course_attempt::find($course_attempt_id);
-        $course_quiz = Course_quiz::find($course_attempt->course_quiz_id);
         
         // get students from s_points for course date
-        $s_points = S_point::where('course_id', '=', session('course_id'))  // $course_quiz->course_id
-        ->where('course_date', '=', session('corse_date'))  // Carbon::today()->format('Y-m-d')
+        $s_points = S_point::where('course_id', '=', session('course_id'))
+        ->where('course_date', '=', Carbon::parse(session('corse_date'))->format('Y-m-d'))
+        ->whereNotIn('std_id', $student_id_array)
         ->get();
 
         foreach($s_points as $s_point){
