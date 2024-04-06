@@ -16,7 +16,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('question_id')->constrained()->cascadeOnDelete();
             $table->foreignId('course_id')->constrained();
-            $table->float('marks')->default(0); //0 means no marks
+            $table->float('marks')->default(4.0); //0 means no marks
             $table->unsignedInteger('max_attempts')->default(2); //0 means unlimited attempts
             $table->tinyInteger('is_published')->default(0); //0 means not published, 1 means published
             // $table->date('course_date'); // useless, used only in attempts 

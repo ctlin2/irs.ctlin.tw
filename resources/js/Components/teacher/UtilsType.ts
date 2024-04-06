@@ -26,14 +26,14 @@ export interface Course {
     id: number,
     class_name: string,
     course_name: string,
-    def_g_point: number,
-    def_s_point: number,
-    def_point_step: number,
-    att_status_1: number,
-    att_status_2: number,
-    att_status_3: number,
-    att_status_4: number,
-    att_status_5: number,
+    // def_g_point: number,
+    // def_s_point: number,
+    // def_point_step: number,
+    // att_status_1: number,
+    // att_status_2: number,
+    // att_status_3: number,
+    // att_status_4: number,
+    // att_status_5: number,
 }
 
 export interface Student {
@@ -74,6 +74,7 @@ export interface CourseQuiz {
     course_date: string,
     expired_at: string,
     question_id: number,
+    marks: number, // C.T.Lin
 }
 
 export interface Answers {

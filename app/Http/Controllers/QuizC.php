@@ -17,6 +17,7 @@ use App\Models\Topic;
 use App\Models\Question;
 use App\Models\Topicable;
 use App\Models\Student;
+use App\Models\Course;
 use App\Models\Course_quiz;
 use App\Models\Course_attempt;
 use App\Models\QuestionOption;
@@ -259,11 +260,8 @@ class QuizC extends BaseController
             return redirect('teacher/course');
         }
 
-//        if(!$req->has('course_date')||!$req->has('course_id')){
-//            return redirect('teacher/course');
-//        }
         $course_id = session('course_id');
-        $course_date = session('course_date'); // useless
+        $course_date = session('course_date'); // maybe useless, only for journal
 
         $question_ids=[];
         $questions=[];
@@ -273,7 +271,9 @@ class QuizC extends BaseController
 
             // jin-mo modify
             $childTopicIds = collect($get_child_topic_ids)->pluck('id')->all();
-            $question_ids = Topicable::whereIn('topic_id', $childTopicIds)->where('topicable_type', 'questions')->pluck('topicable_id')->all();
+            $question_ids = Topicable::whereIn('topic_id', $childTopicIds)
+                ->where('topicable_type', 'questions')
+                ->pluck('topicable_id')->all();
             $questions = Question::whereIn('id', $question_ids)->get();
 
         }else{
@@ -283,7 +283,8 @@ class QuizC extends BaseController
         }
 
         foreach($questions as $question){
-            $topicable_rd=Topicable::where('topicable_id',$question->id)->where('topicable_type','questions')->get()->first();
+            $topicable_rd=Topicable::where('topicable_id',$question->id)
+                ->where('topicable_type','questions')->first();
             if($topicable_rd){
                 $question->topic_id=$topicable_rd->topic_id;
             }else{
@@ -295,12 +296,15 @@ class QuizC extends BaseController
 
         $topics=DB::select("CALL get_all_topic()");
 
-        // find all the quizzes today
+        $today = Carbon::parse(session('course_date'));
+
+        // find all the quizzes in the course date
         $course_quiz_rds = Course_quiz::from('course_quizzes as t1')
             ->join('questions as t2', 't1.question_id', '=', 't2.id')
             ->where('t1.course_id', $course_id)
             // ->where('t1.expired_at', '>', Carbon::now()->subDays(1)->format('Y-m-d H:i:s')) // modified by C.T.Lin
-            ->where('t1.expired_at', '>', Carbon::today()->format('Y-m-d H:i:s')) // modified by C.T.Lin
+            // ->where('t1.expired_at', '>', Carbon::today()->format('Y-m-d H:i:s')) // modified by C.T.Lin
+            ->whereBetween('t1.expired_at', [ $today->format('Y-m-d H:i:s'), $today->addDays(1)->format('Y-m-d H:i:s')])
             ->select('t1.*', 't2.name')->get();
     
         // for each quiz, summarize how many students have answered and how many of them answer correctly.
@@ -313,6 +317,8 @@ class QuizC extends BaseController
             $report[$quiz_id]['std_answer_num']=intval($no_attempts) ?? 0;
             $report[$quiz_id]['std_answer_correct_num']=intval($get_report_data->correct_count) ?? 0;
         }
+
+        $course = Course::find($course_id);
 
         if($req->has('json')) {
             return response()->json([
@@ -331,6 +337,8 @@ class QuizC extends BaseController
                     'course_quiz_rds'=>$course_quiz_rds,
                     'report'=>$report,
                     'course_id'=>$course_id,
+                    'class_name'=>$course->class_name,
+                    'course_name'=>$course->course_name,
                     'course_date'=>$course_date // not needed. quiz alwasys been done today.
                 ]);
         }
@@ -354,16 +362,19 @@ class QuizC extends BaseController
                                     ->get();
         // ToDo : fill-in question
 
+        // dd($quiz_rd);
+
         if($req->has('json')) {
             return response()->json([
-                'quiz_rd' => $quiz_rd,
+                'quiz_info' => $quiz_rd,
                 'std_answers' => $answers,
-                'q_options' => $q_options
+                'q_options' => $q_options,
             ]);
         } else {
             return Inertia::render('teacher/QuizAnswerDetail', [
-                'std_answers' => $answers,
-                'q_options' => $q_options
+                'quiz_info' => $quiz_rd,
+                'std_answers' => $answers,  // maybe empty array
+                'q_options' => $q_options,
             ]);
         }
     }
@@ -445,9 +456,12 @@ class QuizC extends BaseController
 
     private function addStudentPoints(Request $req){
         $student_answers = $req->get('student_answers');
+        $mark = $req->get('marks');;
         $course_attempt = Course_attempt::find($student_answers[0]['course_attempt_id']);
+
+        // find all the students who have taken the same quiz and answer correctly.
         $sql = <<<EOD
-        select course_attempts.id as course_attempt_id, std_id
+        select course_attempts.id as course_attempt_id, course_attempts.std_id
         from course_attempts  
         join course_quizzes
         on course_attempts.course_quiz_id = course_quizzes.id
@@ -483,10 +497,13 @@ class QuizC extends BaseController
         EOD;
         $correct_attempts = DB::select($sql, array('in_course_quiz_id'=>$course_attempt->course_quiz_id));
         // dd($correct_attempts);
-        $mark = 5;
-        foreach ($correct_attempts as $c_attempt){
-            S_point::where('std_id', '=', $c_attempt->std_id)->increment('s_point', $mark);
-        }
+        $students = array_map(function($o){return $o->std_id; }, $correct_attempts);
+        // dd($students);
+
+        S_point::where('course_id', '=', session('course_id'))
+            ->where('course_date', '=', session('course_date'))
+            ->whereIn('std_id', $students)
+            ->increment('s_point', $mark);
     }
 
     private function addAttendant(Request $req){
@@ -496,9 +513,9 @@ class QuizC extends BaseController
         $course_attempt = Course_attempt::find($course_attempt_id);
         $course_quiz = Course_quiz::find($course_attempt->course_quiz_id);
 
-        // get students from s_points for today course
-        $s_points = S_point::where('course_id', '=', $course_quiz->course_id)
-        ->where('course_date', '=', Carbon::today()->format('Y-m-d'))
+        // get students from s_points for course date
+        $s_points = S_point::where('course_id', '=', session('course_id'))  // $course_quiz->course_id
+        ->where('course_date', '=', session('corse_date'))  // Carbon::today()->format('Y-m-d')
         ->get();
 
         foreach($s_points as $s_point){
@@ -511,20 +528,26 @@ class QuizC extends BaseController
     private function addAbsent(Request $req){
         $student_id_array = $req->get('student_ids');
         $course_attempt_id = $req->get('course_attempt_id');
+        // dd($student_id_array);
 
-        $course_attempt = Course_attempt::find($course_attempt_id);
-        $course_quiz = Course_quiz::find($course_attempt->course_quiz_id);
+        // if ($student_id_array.length >= 0){
+        //     $course_attempt = Course_attempt::find($course_attempt_id);
+        //     $course_quiz = Course_quiz::find($course_attempt->course_quiz_id);
+        // }
+
+        // dd('course_id='.session('course_id').';course_date='.session('course_date'));
         
-        // get students from s_points for today course
-        $s_points = S_point::where('course_id', '=', $course_quiz->course_id)
-        ->where('course_date', '=', Carbon::today()->format('Y-m-d'))
-        ->get();
+        // get students from s_points for course date
+        $s_points = S_point::where('course_id', '=', session('course_id'))  // $course_quiz->course_id
+        ->where('course_date', '=', session('course_date'))  // Carbon::today()->format('Y-m-d')
+        ->whereNotIn('std_id', $student_id_array)
+        ->update(['status' => 4]);
 
-        foreach($s_points as $s_point){
-            if (!in_array( $s_point->std_id , $student_id_array, true)){
-                $s_point->update(['status' => 4]); // 缺席
-            }
-        }
+        // foreach($s_points as $s_point){
+        //     if (!in_array( $s_point->std_id , $student_id_array, true)){
+        //         $s_point->update(['status' => 4]); // 缺席
+        //     }
+        // }
     }
 
     private function addLeave(Request $req){
@@ -534,9 +557,9 @@ class QuizC extends BaseController
         $course_attempt = Course_attempt::find($course_attempt_id);
         $course_quiz = Course_quiz::find($course_attempt->course_quiz_id);
         
-        // get students from s_points for today course
-        $s_points = S_point::where('course_id', '=', $course_quiz->course_id)
-        ->where('course_date', '=', Carbon::today()->format('Y-m-d'))
+        // get students from s_points for course date
+        $s_points = S_point::where('course_id', '=', session('course_id'))  // $course_quiz->course_id
+        ->where('course_date', '=', session('corse_date'))  // Carbon::today()->format('Y-m-d')
         ->get();
 
         foreach($s_points as $s_point){

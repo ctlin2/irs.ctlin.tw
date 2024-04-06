@@ -234,23 +234,23 @@ class CourseC extends BaseController
 
     private function coursePost_ImportStudent(Request $req){
         //read xls
-	Log::info('req'.json_encode($req->all()));
+	    Log::info('req'.json_encode($req->all()));
         if($req->file('std_xls')){
             $course_id=$req->get('course_id');
             foreach($req->file('std_xls') as $key => $file){
             	$content=file_get_contents($file);
-		$students=explode("\n",$content);
-		Log::info('std num ='.count($students));
-		foreach($students as $student){
-		 $s_info=explode(',',$student);
+                $students=explode("\n",$content);
+                Log::info('std num ='.count($students));
+                foreach($students as $student){
+                    $s_info=explode(',',$student);
 
-		 Student::updateOrCreate([
-                	'std_no'=>$s_info[0],
-                	'course_id'=>$course_id
-            	],[
-               		'std_name' => $s_info[1],
-		]);
-		}
+                    Student::updateOrCreate([
+                            'std_no'=>$s_info[0],
+                            'course_id'=>$course_id
+                        ],[
+                            'std_name' => $s_info[1],
+                    ]);
+		        }
             }
 //            return response()->json([200]);
         }

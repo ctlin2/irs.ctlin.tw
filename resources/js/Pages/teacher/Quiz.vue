@@ -4,6 +4,9 @@ Head(title="出題測驗")
 
 BaseLayout
     template(#left)
+        .flex.justify-center.p-4.text-white.text-2xl
+            | 日期：{{ currentCourseDate ?? '未知' }}
+
         .border.border-white.border-collapse.overflow-y-auto(style="max-height: 700px;")
             .bg-white.px-4.py-2.border-y.border-gray-400.select-none.flex.justify-between.truncate(v-for="(item, index) in questions"
                 :class="['hover:bg-gray-200', {'from-cyan-400 to-10% to-transparent bg-gradient-to-r': currentQuestionId === item.id}, ]"
@@ -80,8 +83,7 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import SimpleTopic from "@/Components/teacher/SimpleTopic.vue";
 import Modal from "@/Components/Modal.vue";
 import { Topic, Question as QuesType, QOption, QuizList} from '@/Components/teacher/UtilsType';
-
-
+import Course from './Course.vue';
 
 const props = defineProps({
     topic: {
@@ -101,8 +103,14 @@ const props = defineProps({
     report: {
         type: Array,
     },
+    class_name: {
+        type: String,
+    },
     course_id: {
         type: Number,
+    },
+    course_name: {
+        type: String,
     },
     course_date: {
         type: String,
@@ -128,7 +136,10 @@ const currentQOptions = ref<Array<QOption>>([]);
 
 /* computed */
 
+// const currentCourseId = computed(() => props.course_id);
 const currentCourseId = computed(() => props.course_id);
+const currentClassName = computed(() => props.class_name);
+const currentCourseName = computed(() => props.course_name);
 const currentCourseDate = computed(() => props.course_date);
 const topics = computed<Array<Topic>>(() => props.topic);
 const questions = computed<Array<QuesType>>(() => props.questions);

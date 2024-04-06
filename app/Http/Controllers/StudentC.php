@@ -57,7 +57,7 @@ class StudentC extends BaseController
             } else if ($rd->user_id === $req->user()->id){
                 // find the active quizzes and the corresponding courses
                 $quizzes = Course_quiz::where('created_at', '<', Carbon::now())
-                                ->where('expired_at', '<', Carbon::now())->get();
+                                ->where('expired_at', '>', Carbon::now())->get();
                 foreach ($quizzes as $quiz) {
                     $course = Course::find($quiz->course_id);
                     if (!is_null($course) && !is_null(Student::where('id',$rd->id)
@@ -140,6 +140,10 @@ class StudentC extends BaseController
                     ]);
                 }
             }
+            return back()->with('status', '答案已提交');;
+        }
+        else {
+            return back()->with('errors', '作答逾時');; 
         }
     }
 

@@ -2,6 +2,8 @@ INSERT INTO `courses` (`id`, `class_name`, `course_name`, `def_g_point`, `def_s_
 (1, '四資工二A', '112-2計算機網路實務', 50, 0, 5, 0, -10, -10, -20, -50),
 (2, '四技資工二A', '112-2伺服網頁程式設計', 50, 0, 5, 0, -10, -10, -20, -50),
 (3, '四資工二C', '112-2資料庫系統應用', 50, 0, 5, 0, -10, -10, -20, -50);
+ALTER TABLE `courses`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 INSERT INTO `groups` (`id`, `no`, `course_id`) VALUES
 (6, 1, 1),
@@ -12,6 +14,9 @@ INSERT INTO `groups` (`id`, `no`, `course_id`) VALUES
 (11, 6, 1),
 (12, 7, 1),
 (13, 8, 1);
+ALTER TABLE `groups`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+
 
 INSERT INTO `g_points` (`id`, `group_id`, `course_id`, `course_date`, `g_point`) VALUES
 (14, 6, 1, '2024-03-27', 50),
@@ -30,6 +35,11 @@ INSERT INTO `g_points` (`id`, `group_id`, `course_id`, `course_date`, `g_point`)
 (27, 11, 1, '2024-03-31', 50),
 (28, 12, 1, '2024-03-31', 50),
 (29, 13, 1, '2024-03-31', 50);
+ALTER TABLE `g_points`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+
+ALTER TABLE `question_types`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 INSERT INTO `questions` (`id`, `name`, `question_type_id`, `media_url`, `media_type`, `is_active`, `created_at`, `updated_at`, `deleted_at`) VALUES
 (9, '哪個指令是用來配置預設路由？', 1, NULL, NULL, 1, '2024-03-30 04:27:16', '2024-03-30 04:27:16', NULL),
@@ -43,6 +53,9 @@ INSERT INTO `questions` (`id`, `name`, `question_type_id`, `media_url`, `media_t
 (20, '請參閱圖示。您以用戶Mike的身分連接到路由器。哪個指令可以讓你看到OSPF debug指令的輸出？', 1, 'question43.jpg', 'image', 1, '2024-03-31 03:55:23', '2024-03-31 03:55:23', NULL),
 (21, '哪些敘述描述OSPF路由協定？（選擇三項）。', 2, NULL, NULL, 1, '2024-03-31 03:57:45', '2024-03-31 03:57:45', NULL),
 (22, '請參閱圖示。假設所有的路由器介面皆能操作並正確配置。路由器R2在圖中是如何受到R1配置的影響？', 1, 'question90.jpg', 'image', 1, '2024-03-31 08:22:29', '2024-03-31 08:22:29', NULL);
+ALTER TABLE `questions`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+
 
 INSERT INTO `question_options` (`id`, `question_id`, `name`, `media_url`, `media_type`, `is_correct`, `created_at`, `updated_at`, `deleted_at`) VALUES
 (43, 9, 'ip route 172.16.1.0 255.255.255.0 0.0.0.0', NULL, NULL, 0, '2024-03-30 04:27:16', '2024-03-30 04:27:16', NULL),
@@ -97,6 +110,9 @@ INSERT INTO `question_options` (`id`, `question_id`, `name`, `media_url`, `media
 (105, 22, '路由器 R2 將從 R1 取得完整的路由表，包括預設路由。', NULL, NULL, 1, '2024-03-31 08:22:30', '2024-03-31 08:22:30', NULL),
 (106, 22, 'R2 將從 R1 取得 OSPF 更新，但不會從 R1 取得預設路由。', NULL, NULL, 0, '2024-03-31 08:22:30', '2024-03-31 08:22:30', NULL),
 (107, 22, 'R2 將沒有直接連接的序列網路的路由，但所有其他直接連接的網路以及連接到 R1 的兩個乙太網路都將存在。', NULL, NULL, 0, '2024-03-31 08:22:30', '2024-03-31 08:22:30', NULL);
+ALTER TABLE `question_options`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=108;
+
 
 INSERT INTO `students` (`id`, `std_name`, `std_no`, `group_id`, `course_id`, `created_at`, `updated_at`, `deleted_at`) VALUES
 (8, '蘇楷棋', '4110E001', NULL, 1, '2024-03-26 22:56:12', '2024-03-26 22:56:12', NULL),
@@ -141,7 +157,11 @@ INSERT INTO `students` (`id`, `std_name`, `std_no`, `group_id`, `course_id`, `cr
 (47, '卓曜', '4101E011', NULL, 1, '2024-03-26 23:22:04', '2024-03-26 23:22:04', NULL),
 (48, '宗冠舟', '4122E011', NULL, 1, '2024-03-26 23:22:04', '2024-03-26 23:22:04', NULL),
 (49, '陳韋凱', 'A080E115', 11, 1, '2024-03-27 02:20:48', '2024-03-27 02:20:48', NULL),
-(50, '林錦財', 'T093000298', NULL, 1, '2024-03-27 02:20:48', '2024-03-27 02:20:48', NULL);
+(50, '林錦財', 'T093000298', NULL, 1, '2024-03-27 02:20:48', '2024-03-27 02:20:48', NULL),
+(51, '鄭老師', 'administrator', NULL, 1, '2024-03-27 02:22:48', '2024-03-27 02:22:48', NULL);
+
+ALTER TABLE `students`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
 
 INSERT INTO `s_points` (`id`, `std_id`, `group_id`, `status`, `course_id`, `course_date`, `s_point`) VALUES
 (5, 8, NULL, 4, 1, '2024-03-27', 0),
@@ -230,6 +250,9 @@ INSERT INTO `s_points` (`id`, `std_id`, `group_id`, `status`, `course_id`, `cour
 (90, 49, 11, 0, 1, '2024-03-31', 0),
 (91, 50, NULL, 0, 1, '2024-03-31', 0);
 
+ALTER TABLE `s_points`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=92;
+
 INSERT INTO `topics` (`id`, `name`, `slug`, `parent_id`, `is_active`, `created_at`, `updated_at`, `deleted_at`) VALUES
 (1, 'Linux作業系統', '', NULL, 1, NULL, '2024-03-23 08:06:03', NULL),
 (2, 'test', '', 1, 1, '2024-03-23 07:12:45', '2024-03-23 07:12:45', NULL),
@@ -239,6 +262,8 @@ INSERT INTO `topics` (`id`, `name`, `slug`, `parent_id`, `is_active`, `created_a
 (6, '動態路由', '', 4, 1, '2024-03-30 02:27:58', '2024-03-30 02:27:58', NULL),
 (7, '路由表', '', 4, 1, NULL, NULL, NULL),
 (8, '子網路', '', 3, 1, '2024-03-31 02:37:05', '2024-03-31 02:37:05', NULL);
+ALTER TABLE `topics`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 INSERT INTO `topicables` (`id`, `topic_id`, `topicable_id`, `topicable_type`, `created_at`, `updated_at`) VALUES
 (9, 5, 9, 'questions', '2024-03-30 04:27:17', '2024-03-30 04:27:17'),
@@ -255,6 +280,19 @@ INSERT INTO `topicables` (`id`, `topic_id`, `topicable_id`, `topicable_type`, `c
 (20, 6, 21, 'questions', '2024-03-31 03:57:46', '2024-03-31 03:57:46'),
 (21, 6, 22, 'questions', '2024-03-31 08:22:30', '2024-03-31 08:22:30');
 
+ALTER TABLE `topicables`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+
 INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`) VALUES
 (1, 'T093000298', 't093000298@g.ksu.edu.tw', '2024-03-23 05:57:01', '$2y$10$yBSTHvVwsaUyXdE6zq3hwOnElzSy74Cq1d/YqCbY8eb5friL/zIjG', NULL, '2024-03-23 05:42:11', '2024-03-23 05:42:11'),
 (2, 'administrator', 'hankteam83@gmail.com', NULL, '$2y$10$ykiVGDl3Cf9/q6sdnrlCKOwnDJFx5GUjiIjb38cUPGVorLU.WfeiK', NULL, '2024-03-30 18:00:15', '2024-03-30 18:00:15');
+
+ALTER TABLE `users`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+ALTER TABLE `course_attempts`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+ALTER TABLE `course_attempt_answers`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+ALTER TABLE `course_quizzes`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;

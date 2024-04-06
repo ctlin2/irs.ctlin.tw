@@ -32,6 +32,7 @@ import * as _ from 'lodash';
 import { Question, QOption, CourseQuiz} from '@/Components/teacher/UtilsType';
 import TextInput from "@/Components/TextInput.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
+import Swal from 'sweetalert2';
 
 const props = defineProps<{
     quiz: CourseQuiz,
@@ -80,7 +81,24 @@ const submit = () => {
         course_quiz_id: props.quiz.id,
         q_option_id: chooseAns.value,
         selected: selected.value,
-    }).post('/student/quiz');
+    }).post('/student/quiz', {  // modified by C.T.Lin
+        onError: (p) => {
+            console.log('onError p::')
+            console.log(p)
+            alert(p.errors)
+        },
+        onSuccess: () => {
+            // alert('作答完成')
+            Swal.fire({
+                text: '作答完成',
+                icon: 'success',
+                toast: true,
+                showConfirmButton: false,
+                position: 'middle',
+                timer: 3500
+            });
+        },
+    });
 }
 
 const replaceUrl = () => {

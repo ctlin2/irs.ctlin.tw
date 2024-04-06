@@ -8,6 +8,7 @@ Head(title="答題分析")
             | {{ showCorrect ? '隱藏' : '顯示' }}答案
         PrimaryButton(@click="addStudentPoints")
             | 答對個人加積點
+        input(type="text" v-model="current_quiz_marks" size=2)
         PrimaryButton(@click="addAttendant")
             | 答題當做出席
         PrimaryButton(@click="addAbsent")
@@ -30,11 +31,12 @@ Head(title="答題分析")
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineProps } from 'vue';
+import { ref, computed, defineProps, watch } from 'vue';
 import { Head, router, useForm } from "@inertiajs/vue3";
 import * as _ from 'lodash';
-import { Question, QOption, Student, Answers } from '@/Components/teacher/UtilsType';
+import { Question, QOption, Student, Answers, CourseQuiz } from '@/Components/teacher/UtilsType';
 import PrimaryButton from "@/Components/PrimaryButton.vue";
+import Swal from 'sweetalert2';
 
 
 interface StdAnswers extends Answers{
@@ -44,6 +46,7 @@ interface StdAnswers extends Answers{
 }
 
 const props = defineProps<{
+    quiz_info: CourseQuiz,
     std_answers: Array<StdAnswers>,
     q_options: Array<QOption>,
 }>();
@@ -51,6 +54,7 @@ const props = defineProps<{
 /* data */
 
 const showCorrect = ref(false);
+const current_quiz_marks = ref(props.quiz_info.marks);
 
 /* computed */
 
@@ -60,6 +64,7 @@ const q_options = computed<Array<QOption>>(() => props.q_options);
 const groupStudents = computed(() => {
     return _.groupBy(std_answers.value, 'question_option_id');
 });
+
 
 /* methods */
 
@@ -79,13 +84,32 @@ const toggleShowCorrect = () => showCorrect.value = !showCorrect.value;
 
 const postData = (data: object): void => {
     console.log(data);
-    useForm(data).post('/teacher/quiz_answer_detail');
+    useForm(data).post('/teacher/quiz_answer_detail',
+        { onError: (p) => {
+                console.log('onError p::')
+                console.log(p)
+                alert(p.errors)
+            },
+            onSuccess: () => {
+                // alert('作答完成')
+                Swal.fire({
+                    text: '更改完成',
+                    icon: 'success',
+                    toast: true,
+                    showConfirmButton: false,
+                    position: 'middle',
+                    timer: 3500
+                })
+            }
+        }
+    );
 }
 
 const addStudentPoints = () => {
     let data = {
         _action: 'add_student_points',
         student_answers:  _.uniqBy(props.std_answers, 'std_no'),
+        marks: current_quiz_marks.value,
     };
     postData(data);
 };
@@ -93,8 +117,8 @@ const addStudentPoints = () => {
 const addAttendant = () => {
     let data = {
         _action: 'add_attendant',
-        course_attempt_id: props.std_answers[0]['course_attempt_id'],
-        student_ids: _.map(_.uniqBy(props.std_answers, 'std_no'), o =>o['std_id']),  // std_no, std_name, course_quiz_id
+        course_attempt_id: props.std_answers.length == 0? -1 :props.std_answers[0]['course_attempt_id'],
+        student_ids: props.std_answers.length == 0? [] :_.map(_.uniqBy(props.std_answers, 'std_no'), o =>o['std_id']),  // std_no, std_name, course_quiz_id
     };
     postData(data);
 };
@@ -102,8 +126,8 @@ const addAttendant = () => {
 const addAbsent = () => {
     let data = {
         _action: 'add_absent',
-        course_attempt_id: props.std_answers[0]['course_attempt_id'],
-        student_ids: _.map(_.uniqBy(props.std_answers, 'std_no'), o =>o['std_id']),  // std_no, std_name, course_quiz_id
+        course_attempt_id: props.std_answers.length == 0? -1 :props.std_answers[0]['course_attempt_id'],
+        student_ids: props.std_answers.length == 0? [] :_.map(_.uniqBy(props.std_answers, 'std_no'), o =>o['std_id']),  // std_no, std_name, 
     };
     postData(data);
 };
@@ -111,9 +135,9 @@ const addAbsent = () => {
 const addLeave = () => {
     let data = {
         _action: 'add_leave',
-        course_attempt_id: props.std_answers[0]['course_attempt_id'],
+        course_attempt_id: props.std_answers.length == 0? -1 :props.std_answers[0]['course_attempt_id'],
+        student_ids: props.std_answers.length == 0? [] :_.map(_.uniqBy(props.std_answers, 'std_no'), o =>o['std_id']),  // std_no, std_name, 
         // student_numbers: _.map(_.uniqBy(props.std_answers, 'std_no'), o => _.pick(o, ['std_no'])),  // std_no, std_name, course_quiz_id
-        student_ids: _.map(_.uniqBy(props.std_answers, 'std_no'), o =>o['std_id']),  // std_no, std_name, course_quiz_id
     };
     postData(data);
 };

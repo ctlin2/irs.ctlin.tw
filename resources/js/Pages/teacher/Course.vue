@@ -104,7 +104,7 @@
     </BaseLayout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, computed, defineProps, watch } from 'vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import _ from 'lodash';
@@ -112,15 +112,26 @@ import moment from "moment";
 import BaseLayout from "@/Layouts/BaseLayout.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import TextInput from "@/Components/TextInput.vue";
+import { Course, Student } from '@/Components/teacher/UtilsType';
 
+interface GradeCourse extends Course{
+    def_g_point: number,
+    def_s_point: number,
+    def_point_step: number,
+    att_status_1: number,
+    att_status_2: number,
+    att_status_3: number,
+    att_status_4: number,
+    att_status_5: number,
+}
 
 const props = defineProps({
     courses: {
-        type: Array,
+        type: Array<GradeCourse>,
         required: true,
     },
     students: {
-        type: Array,
+        type: Array<Student>,
         required: true,
     },
 })

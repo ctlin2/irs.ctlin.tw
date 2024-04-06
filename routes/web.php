@@ -69,6 +69,7 @@ Route::post('/student/login',[LoginC::class,'studentLoginPost']);
 
 Route::middleware('ksu')->group(function () {
     Route::prefix('teacher')->group(function () {
+        Route::get('/', [CourseC::class, 'course']);
         Route::get('course', [CourseC::class, 'course']);
         Route::get('home', [CourseC::class, 'home']);
         Route::get('ranking_list', [PointC::class, 'pointBoard']);
@@ -103,10 +104,10 @@ Route::middleware('ksu')->group(function () {
 });
 
 Route::prefix('student')->group(function(){
-   Route::get('login',[StudentC::class,'login'])->middleware(['auth', 'verified']);
-   Route::post('login',[StudentC::class,'loginPost'])->middleware(['auth', 'verified']);
-   Route::get('quiz',[StudentC::class,'quiz'])->middleware(['auth', 'verified'])->name('student.quiz');
-   Route::post('quiz',[StudentC::class,'quizPost'])->middleware(['auth', 'verified']);
+    Route::get('login',[StudentC::class,'login'])->middleware(['auth', 'verified']);
+    Route::post('login',[StudentC::class,'loginPost'])->middleware(['auth', 'verified']);
+    Route::get('quiz',[StudentC::class,'quiz'])->middleware(['auth', 'verified'])->name('student.quiz');
+    Route::post('quiz',[StudentC::class,'quizPost'])->middleware(['auth', 'verified']);
 });
 
 
