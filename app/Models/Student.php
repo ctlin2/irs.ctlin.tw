@@ -3,7 +3,7 @@
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 
 // php artisan make:migration add_path_to_audio_table --table=audio
@@ -39,7 +39,7 @@ class Student extends Model
     /**
      * The courses that are taken by the student.
      */
-    public function courses()
+    public function courses(): BelongsToMany
     {
         return $this->belongsToMany(Course::class, 'takes', 'student_id', 'course_id'); 
     }

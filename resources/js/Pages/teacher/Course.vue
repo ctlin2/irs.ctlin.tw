@@ -144,7 +144,7 @@ const current_course_info = ref({});
 const form_data = useForm({
     _action: 'import_student',
     std_xls: null,
-    course_id: current_course_id,
+    course_id: current_course_id.value,
 });
 
 /* computed */

@@ -23,7 +23,7 @@ class CourseC extends BaseController
     public function course(Request $req){
 //        Log::info('course_test');
         $courses=Course::all();
-        $students=Student::all();
+        $students=Student::all(); // ToDo: student list depend on a course
         if($req->has('json')) {
             return response()->json(['course' => $courses]);
         }else{
@@ -250,12 +250,17 @@ class CourseC extends BaseController
                 foreach($students as $student){
                     $s_info=explode(',',$student);
 
-                    Student::updateOrCreate([
-                            'std_no'=>$s_info[0],
-                            'course_id'=>$course_id
-                        ],[
-                            'std_name' => $s_info[1],
-                    ]);
+                    Student::updateOrCreate(
+                        [ 'std_no'=>$s_info[0] ],
+                        [ 'std_name' => $s_info[1] ]
+                    );
+
+                    // update "takes"
+                    // $course = Course::find('course_id', $course_id);
+                    $rd_student = Student::where('std_no', $s_info[0])->first();
+                    $rd_student->courses()->attach(Course::find($course_id));
+                    // Updating pivot data
+                    // $rd_student->courses()->updateExistingPivot($course->id, ['additional_data' => 'new_value']);
 		        }
             }
 //            return response()->json([200]);
