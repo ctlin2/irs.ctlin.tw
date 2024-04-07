@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('takes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained();
+            $table->foreignId('student_id')->constrained();
             $table->foreignId('course_id')->constrained();
             // $table->timestamps();
         });
@@ -25,7 +25,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('takes', function (Blueprint $table) {
-            $table->dropForeign(['user_id']);
+            $table->dropForeign(['student_id']);
             $table->dropForeign(['course_id']);
         });
         Schema::dropIfExists('takes');

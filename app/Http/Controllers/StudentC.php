@@ -45,28 +45,27 @@ class StudentC extends BaseController
 
         $std_no = $req->get('std_no');
         // $rd = Student::where('course_id', $course_id)->where('std_no', $std_no)->first();
-        $rd = Student::where('std_no', $std_no)->first(); // C.T.Lin
+        $rd_student = Student::where('std_no', $std_no)->first(); // C.T.Lin
         // Log::info('(StudentC/loginPost)$rd='.json_encode($rd));
 
         // $login_std_no = User::find($req->user()->id)->name;
 
-        if (!is_null($rd)) {  // modified by C.T.Lin to avoid user faking ID
-            if (is_null($rd->user_id)) {
+        if (!is_null($rd_student)) {  // modified by C.T.Lin to avoid user faking ID
+            if (is_null($rd_student->user_id)) {  // 學生未綁定user帳號
                 $req->merge(['msg'=>'您的 Profile 需填寫正確學號']); // added by C.T.Lin
                 return $this->toLoginPage($req);
-            } else if ($rd->user_id === $req->user()->id){
+            } else if ($rd_student->user_id === $req->user()->id){ // 相符
                 // find the active quizzes and the corresponding courses
                 $quizzes = Course_quiz::where('created_at', '<', Carbon::now())
-                                ->where('expired_at', '>', Carbon::now())->get();
+                            ->where('expired_at', '>', Carbon::now())->get();
                 foreach ($quizzes as $quiz) {
-                    $course = Course::find($quiz->course_id);
-                    if (!is_null($course) && !is_null(Student::where('id',$rd->id)
-                            ->where('course_id', $course->id)->get())){  // ToDo:  a student may take many courses.
-                        session(['course_id' => $course->id]);
-                        break;
+                    $rd_course = $rd_student->courses->where('id',$quiz->course_id)->first();
+                    if(!is_null($rd_course)){
+                        session(['course_id' => $rd_course->id]);
+                        break; // found a course quiz
                     }
                 }
-                session(['std_id' => $rd->id]);
+                session(['std_id' => $rd_student->id]);
                 return $this->enterQuiz();
             }  else {
                 $req->merge(['msg'=>'請確認是您的正確學號']); // added by C.T.Lin
@@ -140,10 +139,10 @@ class StudentC extends BaseController
                     ]);
                 }
             }
-            return back()->with('status', '答案已提交');;
+            return back()->with('status', '答案已提交');
         }
         else {
-            return back()->with('errors', '作答逾時');; 
+            return back()->with('errors', '作答逾時'); 
         }
     }
 

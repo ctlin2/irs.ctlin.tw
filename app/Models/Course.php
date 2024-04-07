@@ -35,4 +35,12 @@ class Course extends Model
     protected $casts = [
 //        'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * The students that belong to the course.
+     */
+    public function students()
+    {
+        return $this->belongsToMany(Student::class, 'takes');
+    }
 }

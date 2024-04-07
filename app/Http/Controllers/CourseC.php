@@ -123,9 +123,9 @@ class CourseC extends BaseController
         $g_point_id=$req->get('g_point_id');
         $g_point_rd=G_point::find($g_point_id);
 
-
+        // the group_id is used to remember the recent group of a student.
         Student::where('group_id',$g_point_rd->group_id)
-                ->where('course_id',$g_point_rd->course_id)
+                // ->where('course_id',$g_point_rd->course_id)
                 ->update(['group_id'=>null]);
 
         S_point::where('course_id',$g_point_rd->course_id)
@@ -133,9 +133,11 @@ class CourseC extends BaseController
             ->where('group_id',$g_point_rd->group_id)
             ->update(['group_id'=>null]);
         $group_id=$g_point_rd->group_id;
-        $g_point_rd->delete();
-        Group::find($group_id)->delete();
+        $g_point_rd->delete(); // delete g_points entry
 
+        // make sure useless in g_points
+        if (G_point::where('group_id', $group_id)->count() == 0)
+            Group::find($group_id)->delete(); // delete group entry only if no entry in g_points
     }
 
     private function hasSessionInfo(){
@@ -204,8 +206,12 @@ class CourseC extends BaseController
         // generate s_point,g_point
         $course_id = $req->get('course_id');
         $course_date = $req->get('course_date');
-        $students=Student::where('course_id',$course_id)->get(); // ToDo (*important): a student may "takes" many courses. 
+        // $students=Student::where('course_id',$course_id)->get(); // obsolete (*important): a student may "takes" many courses. 
+        // ToDo: convert the following code to a stored procedure
+
         $course_rd=Course::find($course_id);
+        $students = $course_rd->students;  // students who take the course
+        // dd($students);
         foreach($students as $student){
             // ToDo: retrieve the last status of the student?
             S_point::create([
@@ -287,7 +293,10 @@ class CourseC extends BaseController
         session(['course_id' => $course_id, 'course_date' => $course_date]);
 
         $course = Course::find($course_id);
-        $students = Student::where('course_id', $course_id)->get();
+        // $students = Student::where('course_id', $course_id)->get(); // obsolete
+        $students = $course->students;
+        
+        // find existing entries
         $s_points = S_point::from('s_points as t1')
             ->join('students as t2', 't1.std_id', '=', 't2.id')
             ->where('t1.course_id', $course_id)

@@ -278,6 +278,12 @@ defineProps({
                             <p class="mt-4 text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
                                 臨時出題
                             </p>
+                            
+                            <h2 class="mt-6 text-xl font-semibold text-gray-900 dark:text-white">答題檢討</h2>
+                            <p class="mt-4 text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
+                                學生答題狀況
+                            </p>
+                            
                         </div>
 
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -299,10 +305,10 @@ defineProps({
                                 </svg>
                             </div>
 
-                            <h2 class="mt-6 text-xl font-semibold text-gray-900 dark:text-white">答題檢討</h2>
+                            <h2 class="mt-6 text-xl font-semibold text-gray-900 dark:text-white">積點排行榜</h2>
 
                             <p class="mt-4 text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
-                               正在努力加強功能中....
+                               各次上課的分組積點與個人積點。
                             </p>
                         </div>
 

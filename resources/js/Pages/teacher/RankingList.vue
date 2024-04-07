@@ -18,8 +18,8 @@ BaseLayout
 
     .bg-cyan-400.flex(class="h-[52px]")
     .flex.gap-4.p-4
-        select(class="appearance-none rounded-md" v-model="current_date")
-            option(v-for="(item, index) in course_date_list" :value="item")
+        select(class="appearance-none rounded-md" v-model="current_date" @change="onClickSearch")
+            option(v-for="(item, index) in course_date_list" :value="item" :selected="item == current_date")
                 | {{ item }}
         PrimaryButton(@click="onClickSearch") Search
     .flex.gap-4.p-4
@@ -62,12 +62,13 @@ const props = defineProps<{
     students: Array<Student>,
     groups: Array<Group>,
     course_date_list: Array<string>,
+    current_lookup_date: string, // added by C.T.Lin
 }>();
 
 /* data */
 
 const is_show_group = ref(false);
-const current_date = ref();
+const current_date = ref<string>(props.current_lookup_date);
 
 const group_table_title = ref(['排名', '組別', '分數']);
 const group_table_val = ref(['no', 'g_point']);
@@ -102,6 +103,7 @@ const onClickSearch = () => {
         course_date: current_date.value,
     });
 }
+
 
 /* created */
 

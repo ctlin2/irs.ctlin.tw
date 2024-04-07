@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('std_name', 30);
             $table->string('std_no', 30);
             $table->foreignId('group_id')->nullable()->constrained();
-            $table->foreignId('course_id')->constrained(); // ToDo: student can take mnay course
             $table->foreignId('user_id')->nullable()->constrained(); // added by C.T.Lin
             $table->timestamps();
             $table->softDeletes();
@@ -30,7 +29,7 @@ return new class extends Migration
     {
         Schema::table('students', function (Blueprint $table) {
             $table->dropForeign(['group_id']);
-            $table->dropForeign(['course_id']);
+            $table->dropForeign(['user_id']);
         });
         Schema::dropIfExists('students');
     }

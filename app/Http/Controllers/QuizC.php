@@ -403,15 +403,16 @@ class QuizC extends BaseController
     
 
     public function quizPost(Request $req){
-
+        // dd($req->get('expired_time'));
         $question_id=$req->get('question_id');
 
         $action = $req->get('_action');
         if (!$this->hasSessionInfo()) {
             return redirect('teacher/course');
         }
-        $course_id = session('course_id');
-        $course_date = session('course_date');
+
+        $course_id=session('course_id');
+        $course_date=session('course_date');
 
         switch ($action) {
             case 'add_quiz':
@@ -432,6 +433,26 @@ class QuizC extends BaseController
 
         if ($req->get('question_id') == null)
             return redirect('teacher/quiz');
+
+        // TODO: 如果找不到今日的 s_points，則要退回課程
+        // if (S_point::where('course_date', '=', Carbon::now()->format('Y-m-d'))->count()===0){
+        //     return redirect('teacher/course')->with('errors', '今日尚未建立課程');
+            // return back()->with('errors', '今日尚未建立課程');
+        // }
+
+        $course_date = Carbon::now()->format('Y-m-d'); // Since a quiz is taken today,
+        session(['course_date' => $course_date]); // we must back to today, otherwise no quiz appears.
+
+        // There must exist corresponding s_points before taking a quiz.
+        // Check there exists entries in s_points table
+        $s_points = S_point::from('s_points as t1')
+            ->where('t1.course_id', $course_id)
+            ->where('t1.course_date', $course_date)->first();
+
+        if (is_null($s_points)) {
+            // call open_course()
+            DB::select("CALL open_course(?,?)",array($course_id, $course_date));
+        }
 
         $expired_time_min=$req->get('expired_time')??5;
         $created_at= Carbon::now();
@@ -551,7 +572,5 @@ class QuizC extends BaseController
     private function hasSessionInfo(){
         return session()->has('course_id');
     }
-
-
 
 }

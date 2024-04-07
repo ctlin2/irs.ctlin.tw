@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('g_points', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('group_id')->constrained();
+            $table->foreignId('group_id')->nullable()->constrained();
             $table->foreignId('course_id')->constrained();
             $table->date('course_date');
             $table->smallInteger('g_point'); // 分組積點

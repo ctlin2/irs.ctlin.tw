@@ -84,6 +84,7 @@ import SimpleTopic from "@/Components/teacher/SimpleTopic.vue";
 import Modal from "@/Components/Modal.vue";
 import { Topic, Question as QuesType, QOption, QuizList} from '@/Components/teacher/UtilsType';
 import Course from './Course.vue';
+import Swal from 'sweetalert2';
 
 const props = defineProps({
     topic: {
@@ -188,7 +189,32 @@ const onClickOpenAnswersAnalysis = (quiz_id: number) => {
 
 const postData = (data: object): void => {
     console.log(data);
-    useForm(data).post('/teacher/quiz');
+    useForm(data).post('/teacher/quiz',
+        { onError: (p) => {
+            console.log('onError p::')
+            console.log(p)
+            // alert(p.errors)
+            Swal.fire({
+                text: '失敗：需先建立課程分組名單',
+                icon: 'error',
+                toast: true,
+                showConfirmButton: false,
+                position: 'middle',
+                timer: 3500
+            })
+        },
+        onSuccess: () => {
+            // alert('作答完成')
+            Swal.fire({
+                text: '完成',
+                icon: 'success',
+                toast: true,
+                showConfirmButton: false,
+                position: 'middle',
+                timer: 3500
+            })
+        }
+    });
 }
 
 const submitAddQuiz = () => {  
@@ -196,6 +222,7 @@ const submitAddQuiz = () => {
         _action: 'add_quiz',
         question_id: currentQuestionId.value,
         expired_time: expireTime.value,
+        // course_date: moment().format('YYYY-MM-DD'),
     };
     postData(data);
 }
