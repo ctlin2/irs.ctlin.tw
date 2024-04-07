@@ -10,12 +10,14 @@ BaseLayout
         .flex.justify-center.p-4.text-white.text-2xl
             | 班級:{{ class_info.class_name }}
         .border.border-white.border-collapse.overflow-y-auto(style="max-height: 700px;")
-            .bg-white.px-4.py-2.border-y.border-gray-400.select-none.flex.justify-between(v-for="(item, index) in students")
+            .bg-white.px-4.py-2.border-y.border-gray-400.select-none.flex.justify-between(v-for="(item, index) in orig_students")
                 //- :class="['hover:bg-gray-200', {'from-cyan-400 to-10% to-transparent bg-gradient-to-r': has_in_select_std(item.id)}, ]"
                 //- @click="set_current_std(item.id)")
                 .flex
                     | {{ item.std_no }} {{ item.std_name }}
-
+                .flex.gap-2
+                    span
+                    | 第{{ item.group_no }}組
     .bg-cyan-400.flex(class="h-[52px]")
     .flex.gap-4.p-4
         select(class="appearance-none rounded-md" v-model="current_date" @change="onClickSearch")
@@ -89,6 +91,7 @@ const class_info = computed<Course>(() => props.course);
 // });
 
 const students = computed<Array<Student>>(() => props.students);
+const orig_students = computed<Array<Student>>(() =>  _.sortBy(props.students, 'std_no'));   
 const groups = computed<Array<Group>>(() => props.groups);
 
 const table_data = computed(() => {

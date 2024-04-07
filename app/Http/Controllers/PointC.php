@@ -37,9 +37,10 @@ class PointC extends BaseController
         $students = $course->students;
         $s_points = S_point::from('s_points as t1')
             ->join('students as t2', 't1.std_id', '=', 't2.id')
+            ->join('groups as t3', 't1.group_id', '=', 't3.id') // added by C.T.Lin
             ->where('t1.course_id', $course_id)
             ->where('t1.course_date', $course_date)
-            ->select('t1.*', 't2.std_no', 't2.std_name')
+            ->select('t1.*', 't2.std_no', 't2.std_name', 't3.no as group_no') // modified by C.T.Lin
             ->orderBy('t1.s_point', 'DESC') 
             ->get();
 

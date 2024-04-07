@@ -40,6 +40,7 @@ export interface Student {
     id: number,
     std_id: number,
     group_id: number,
+    group_no: number,
     status: number,
     course_id: number,
     course_date: string,
