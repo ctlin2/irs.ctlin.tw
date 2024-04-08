@@ -188,6 +188,16 @@ class StudentC extends BaseController
 
     }
 
+    public function list(Request $req){
+        $course_id = $req->get('course_id');
+//        dd($course_id);
+        $students = Course::find($course_id)->students;
+        return response()->json(['students' => $students])
+            ->header('Access-Control-Allow-Origin','*')
+            ->header('Access-Control-Allow-Methods',['GET','POST'])
+            ->header('Access-Control-Allow-Headers','X-Requested-With, Content-Type');
+    }
+
     private function hasSessionInfo(){
         return session()->has('std_id');
     }

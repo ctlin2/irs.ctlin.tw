@@ -12,8 +12,9 @@
                 班級：{{ current_course?.class_name ?? '尚未選擇' }}
             </div>
             <div class="border border-white border-collapse overflow-y-auto" style="max-height: 700px;">
-                <div v-if="students.length !== 0" v-for="(item, index) in students" class="bg-white px-4 py-2 border-y border-gray-400">
-                    {{ item.std_no }} {{ item.std_name }}
+                <div v-if="students?.length !== 0" v-for="(item, index) in students" class="bg-white px-4 py-2 border-y border-gray-400 flex justify-between">
+                    <div class="flex">{{ item.std_no }}</div>
+                    <div class="flex gap-2"> {{ item.std_name }}</div>
                 </div>
                 <div v-else class="bg-white px-4 py-2 border-y border-gray-400">
                     尚未上傳學生資料
@@ -140,7 +141,8 @@ const props = defineProps({
 
 const today = ref('');
 const current_course_id = ref();
-const current_course_info = ref({});
+const current_course_info = ref<GradeCourse>(null);
+// const students = ref<Array<Student>>(null); // added by C.T.Lin
 const form_data = useForm({
     _action: 'import_student',
     std_xls: null,
@@ -150,7 +152,9 @@ const form_data = useForm({
 /* computed */
 
 const current_course = computed(() => _.find(props.courses, {id: current_course_id.value}));
-const students = computed(() => _.filter(props.students, {course_id: current_course_id.value}));
+const students = computed(() =>  _.sortBy(_.filter(props.students, {course_id: current_course_id.value}), 'std_no')); // ToDo
+
+// const students = computed(() => props.students);
 // const students = computed(() => {
 //     return _.transform(_.range(1,10), (res, item, index) => {
 //         res.push({
@@ -201,6 +205,18 @@ const toTopicPage = () => {
     router.get('/teacher/topic');
 }
 
+// fetch students dynamically
+const fetch_data = () => {
+    try {
+        let baseUrl = window.location.host;
+        fetch('https://'+baseUrl+'/student/list?course_id='+current_course_id.value) // added by C.T.Lin, Secure ? middleware
+        .then(response => response.json())
+        .then(data => console.log(data.students)); // students.value = 
+    } catch(error) {
+        throw Error(error)
+    }
+}
+
 /* watch */
 
 watch(current_course_id, (newValue) => {
@@ -215,7 +231,7 @@ today.value = moment().format('YYYY-MM-DD');
 
 console.log(students.value);
 console.log(props.courses);
-console.log(props.students);
+// console.log(props.students);
 
 </script>
 

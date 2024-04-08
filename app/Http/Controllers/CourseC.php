@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 use App\Models\Course;
+use DB;
 
 use App\Models\QuestionOption;
 use Log;
@@ -23,7 +24,8 @@ class CourseC extends BaseController
     public function course(Request $req){
 //        Log::info('course_test');
         $courses=Course::all();
-        $students=Student::all(); // ToDo: student list depend on a course
+        $students=DB::table('students as t1')->join('takes as t2', 't1.id', '=', 't2.student_id')
+            ->select('t1.*', 't2.course_id')->get(); // ToDo: student list depend on a course
         if($req->has('json')) {
             return response()->json(['course' => $courses]);
         }else{

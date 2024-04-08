@@ -108,6 +108,7 @@ Route::prefix('student')->group(function(){
     Route::post('login',[StudentC::class,'loginPost'])->middleware(['auth', 'verified']);
     Route::get('quiz',[StudentC::class,'quiz'])->middleware(['auth', 'verified'])->name('student.quiz');
     Route::post('quiz',[StudentC::class,'quizPost'])->middleware(['auth', 'verified']);
+    Route::get('list',[StudentC::class,'list'])->middleware(['auth', 'verified'])->name('student.list'); // C.T.Lin
 });
 
 

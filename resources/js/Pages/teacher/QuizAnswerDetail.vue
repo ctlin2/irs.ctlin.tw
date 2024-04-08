@@ -97,7 +97,7 @@ const postData = (data: object): void => {
                     icon: 'success',
                     toast: true,
                     showConfirmButton: false,
-                    position: 'middle',
+                    // position: 'middle',
                     timer: 3500
                 })
             }
