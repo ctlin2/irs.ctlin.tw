@@ -15,10 +15,10 @@
             textarea.rounded-md(style="width: 600px; height: 60px;" v-model="item.name" )
             label.flex.gap-2
                 div 正確答案
-                TextInput(type="checkbox" :value="1" name="isCorrect" v-model="item.is_correct" :checked="item.is_correct")
+                TextInput(type="checkbox" :value="item.id" name="isCorrect" v-model="option_indices" :checked="item.is_correct" @click="toggleChecked(item)")
             PrimaryButton(@click="onClickDelOption(item.id, index)" class="!bg-red-500")
                 | 刪除
-
+    
     .flex.gap-4
         PrimaryButton(@click="onSave") save
         PrimaryButton(v-if="showDelBtn" @click="onDelete" class="!bg-red-500") delete
@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { toRefs, computed, defineProps, defineEmits } from 'vue';
+import { ref, toRefs, computed, defineProps, defineEmits } from 'vue';
 import SimpleTopic from "@/Components/teacher/SimpleTopic.vue";
 import TextInput from "@/Components/TextInput.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
@@ -53,6 +53,7 @@ const props = defineProps({
 const { options } = toRefs(props);
 // const topic = toRef(props.question.topic_id);
 // const topic_id = toRef(props.question, 'topic_id');
+const option_indices = ref([]); // C.T.Lin
 
 /* computed */
 
@@ -79,6 +80,8 @@ const onClickAddOption = (): void => {
 const onClickDelOption = (option_id: number, index: number): void => {
     emit('delOption', option_id, index);
 }
+
+const toggleChecked = (item:QOption) => { item.is_correct = !item.is_correct; }
 
 const onSave = () => emit('save');
 const onDelete = () => emit('delete', question.value.id);

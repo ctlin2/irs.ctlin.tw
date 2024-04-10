@@ -17,7 +17,7 @@ BaseLayout
                     多選
         .border.border-white.border-collapse.overflow-y-auto(style="max-height: 700px;")
             .bg-white.px-4.py-2.border-y.border-gray-400.select-none.flex.justify-between(v-for="(item, index) in students"
-                :class="['hover:bg-gray-200', {'from-cyan-400 to-10% to-transparent bg-gradient-to-r': has_in_select_std(item.id)}, ]"
+                :class="['hover:bg-gray-200', {'from-cyan-400 to-10% to-transparent bg-gradient-to-r': has_in_select_std(item.id)}, { 'text-slate-500': has_group(item)}, ]"
                 @click="set_current_std(item.id)")
                 .flex
                     | {{ item.std_no }} {{ item.std_name }}
@@ -82,7 +82,7 @@ const props = defineProps({
 
 /* data */
 
-const is_multiple = ref(false);
+const is_multiple = ref(true);
 const select_std_id = reactive([]);
 const select_group_id = ref();
 
@@ -125,6 +125,7 @@ const std_resultMap = _.zipObject(_.range(std_status_values.length), std_status_
 /* methods */
 
 const has_in_select_std = (std_id) => _.includes(select_std_id, std_id);
+const has_group = (item) => item.group_id !== null;
 const enable_multiple = () => {
     select_std_id.splice(0);
     is_multiple.value = true;
@@ -214,9 +215,9 @@ const change_s_status = (item) => change_std_status(item.id, item.status+1);
  */
 const add_group = () => {
     let tmp_group = _.map(groups.value, 'no');
-    let max = _.max(tmp_group);
+    let max = _.max(tmp_group)??0; // modified by C.T.Lin
     let no = _.get(_.sortBy(_.pullAll(_.range(1, max), tmp_group)), '0', max + 1);
-    useForm({
+    useForm({ 
         _action: 'add_group',
         no: no,
     }).post('/teacher/home');

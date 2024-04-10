@@ -225,7 +225,11 @@ class QuizC extends BaseController
             );
         }else{
             $q_rd=Question::find($question['id']);
-            $q_rd->update(['name' => $question['name']]);
+            
+            // added by C.T.Lin
+            $option_count = QuestionOption::where('question_id', '=', $question['id'])
+                ->where('is_correct', '=', 1)->count();       
+            $q_rd->update(['name' => $question['name'], 'question_type_id' => $option_count > 1 ? 2 : 1]); // modified by C.T.Lin
         }
 
         Log::info("q_rd= ".json_encode($q_rd));
