@@ -137,15 +137,19 @@ class QuizC extends BaseController
 
         switch ($action) {
             case 'add_question':
+                Log::info('QuizC:questionPost(): add_question');
                 $this->addQuestion($req);
                 break;
             case 'change_question':
+                Log::info('QuizC:questionPost(): change_question');
                 $this->changeQuestion($req);
                 break;
             case 'del_question':
+                Log::info('QuizC:questionPost(): del_question');
                 $this->delQuestion($req);
                 break;
         }
+        return back()->with('status', '儲存完成'.$req->get('_action'));
     }
 
     private function addQuestion(Request $req){

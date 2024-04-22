@@ -33,6 +33,7 @@ import PrimaryButton from "@/Components/PrimaryButton.vue";
 import SimpleTopic from "@/Components/teacher/SimpleTopic.vue";
 import QuestionItem from "@/Components/teacher/QuestionItem.vue";
 import { Topic, Question as QuesType, QOption } from '@/Components/teacher/UtilsType';
+import Swal from 'sweetalert2';
 
 
 
@@ -53,7 +54,7 @@ const props = defineProps({
 /* data */
 
 const topicId = ref<number>(null);
-const isCreated = ref(false);
+// const isCreated = ref(false);
 const currentQuestionId = ref<number>();
 const currentQuestionInfo = ref<QuesType>({
     id: null,
@@ -92,7 +93,7 @@ const onClickSelectedQuestion = (val: number): void => {
     currentQuestionInfo.value = _.cloneDeep(_.find(questions.value, {id: val}));
     currentQOptions.value = _.cloneDeep(filterQuestionOptions(val));
     delQOptions.splice(0);
-    isCreated.value = false;
+    // isCreated.value = false;
 }
 
 const changeCurrentQTopic = (topic_id: number): void => {
@@ -109,7 +110,7 @@ const onClickAddQuestion = (): void => {
     currentQuestionId.value = null;
     currentQOptions.value = [];
     delQOptions.splice(0);
-    isCreated.value = true;
+    // isCreated.value = true;
 }
 
 const onAddQOption = (val: QOption): void => {
@@ -125,7 +126,23 @@ const onDelQOption = (q_option_id: number, index: number): void => {
 
 const postData = (data: object): void => {
     console.log(data);
-    useForm(data).post('/teacher/question');
+    useForm(data).post('/teacher/question', {  // modified by C.T.Lin
+        onError: (p) => {
+            console.log('onError /teacher/question:')
+            console.log(p)
+            alert(p.errors)
+        },
+        onSuccess: () => {
+            Swal.fire({
+                text: '儲存完成',
+                icon: 'success',
+                toast: true,
+                showConfirmButton: false,
+                position: 'middle',
+                timer: 3500
+            });
+        },
+    });
 }
 
 const submitCreateData = (): void => {
@@ -155,8 +172,8 @@ const submitDelData = (q_id: number): void => {
     postData(data);
 }
 
-const saveData = () => {
-    if (isCreated.value) {
+const saveData = () => { // update or create, depending on currentQuestionId
+    if (currentQuestionInfo.value.id === null) { // isCreated.value
         submitCreateData();
     } else {
         submitChangeData();

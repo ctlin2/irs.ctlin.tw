@@ -4,7 +4,7 @@
     <BaseLayout>
         <template #left>
             <div class="flex justify-center border-double border-2 border-white p-1 text-white text-3xl">
-                <div class="flex-1 flex justify-center border-double border-2 border-white p-4 text-white text-3xl">
+                <div class="flex-1 flex justify-center border-double border-2 border-white p-4 text-white text-2xl">
                     {{ current_course?.course_name ?? '尚未選擇' }}
                 </div>
             </div>

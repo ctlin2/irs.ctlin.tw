@@ -5,7 +5,7 @@ Head(title="排行榜")
 BaseLayout
     template(#left)
         .flex.justify-center.border-2.border-white.p-1.text-white.text-3xl
-            .flex-1.flex.justify-center.border-2.border-white.p-4.text-white.text-3xl
+            .flex-1.flex.justify-center.border-2.border-white.p-4.text-white.text-2xl
                 | {{ class_info.course_name }}
         .flex.justify-center.p-4.text-white.text-2xl
             | 班級:{{ class_info.class_name }}

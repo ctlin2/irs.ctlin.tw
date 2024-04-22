@@ -5,7 +5,7 @@
         <div class="w-full h-full flex">
             <div class="flex flex-col gap-4 bg-black p-4" style="width: 350px;">
                 <div class="flex justify-center border-double border-2 border-white p-1 text-white text-3xl">
-                    <div class="flex-1 flex justify-center border-double border-2 border-white p-4 text-white text-3xl">
+                    <div class="flex-1 flex justify-center border-double border-2 border-white p-4 text-white text-2xl">
                         {{ class_info.course_title }}
                     </div>
                 </div>

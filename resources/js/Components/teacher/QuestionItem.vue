@@ -20,7 +20,8 @@
                 | 刪除
     
     .flex.gap-4
-        PrimaryButton(@click="onSave") save
+        PrimaryButton(@click="onSave") 
+            | {{ upateOrCreate }}
         PrimaryButton(v-if="showDelBtn" @click="onDelete" class="!bg-red-500") delete
 
 </template>
@@ -57,6 +58,7 @@ const option_indices = ref([]); // C.T.Lin
 
 /* computed */
 
+const upateOrCreate = computed(() => question.value.id !== null ? 'update' : 'create');
 const showDelBtn = computed(() => question.value.id !== null);
 const question = computed<QuesType>(() => props.question as QuesType);
 // const topic = computed<number>(() => question.value?.topic_id);
