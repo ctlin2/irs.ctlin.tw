@@ -141,6 +141,10 @@ const postData = (data: object): void => {
                 position: 'middle',
                 timer: 3500
             });
+            if (currentQuestionInfo.value.id === null) { // Added by C.T.Lin
+                onClickAddQuestion();
+            }
+             
         },
     });
 }
@@ -170,6 +174,7 @@ const submitDelData = (q_id: number): void => {
         q_id: q_id,
     }
     postData(data);
+    onClickAddQuestion(); // Added by C.T.Lin
 }
 
 const saveData = () => { // update or create, depending on currentQuestionId
