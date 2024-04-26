@@ -83,7 +83,7 @@ class StudentC extends BaseController
 
     // jin-mo modify
     public function quiz(Request $req) {
-        Log::info('(StudentC/quiz quiz())$req->course_id='.json_encode($req->course_id).', course_date'.json_encode($req->course_date));  // added by C.T.Lin
+        Log::info('(StudentC/quiz quiz())$req->course_id='.json_encode($req->course_id).', course_date='.json_encode($req->course_date));  // added by C.T.Lin
         // if ($req->has(['course_id', 'course_date'])) {
         //     session($req->only(['course_id', 'course_date'])); 
         //     // Bug: take effects only on teacher's browser, not students' browser.
@@ -103,18 +103,20 @@ class StudentC extends BaseController
         $q_option_id = $req->get('q_option_id');  // for single-answer question
         $selected_options = $req->get('selected');  // for multiple-answer question
         $answer = $req->get('answer');  // for fill-in question
-        $std_id = session('std_id');
+        // $std_id = session('std_id');
+        $std_id = Student::where('std_no', '=', $req->user()->name)->first()->id;
 
         $quiz = Course_quiz::find($course_quiz_id);
+        // No matter the attempt is expired or not, it must be recorded. Modified by C.T.Lin
+        $attempt = Course_attempt::create([
+            'course_quiz_id' => $course_quiz_id, 
+            'std_id' => $std_id,
+        ]);
+
         $cts = Carbon::now();
         $expired_at = Carbon::parse($quiz->expired_at);
 
         if ($cts->lt($expired_at)) {
-            $attempt = Course_attempt::create([
-                'course_quiz_id' => $course_quiz_id, 
-                'std_id' => $std_id,
-            ]);
-
             // assert $attempt->id not null
             if (!is_null($q_option_id)){  // single-answer question
                 $attempt_answer = Course_attempt_answer::Create([
@@ -139,10 +141,12 @@ class StudentC extends BaseController
                     ]);
                 }
             }
+            session()->flash('message', "作答完成"); // C.T.Lin
             return back()->with('status', '答案已提交');
         }
         else {
-            return back()->with('errors', '作答逾時'); 
+            // as if no answer
+            return back()->withErrors(['status' => '作答逾時']); // errors
         }
     }
 
@@ -166,13 +170,14 @@ class StudentC extends BaseController
         $after_ans_quiz_ids = Course_attempt::where('std_id', $std_id)->pluck('course_quiz_id')->all();
         
         $cts = Carbon::now()->format('Y-m-d H:m:s');
-        Log::info('(StudentC/loginPost enerQuiz())NOW='.json_encode(date('Y-m-d H:m:s'))); // 時間一樣，但與系統時間差異過大？為什麼? C.T.Lin
+        Log::info('(StudentC/loginPost enterQuiz())NOW='.json_encode(date('Y-m-d H:m:s', time()))); // 時間一樣，但與系統時間差異過大？為什麼? C.T.Lin
         $quiz = Course_quiz::where('course_id', $course_id)
                 // ->whereDate('course_date', Carbon::today()->format('Y-m-d')) // modified by C.T.Lin
                 // ->where('created_at', '<=', $cts)
                 ->where('expired_at', '>', $cts) 
                 ->whereNotIn('id', $after_ans_quiz_ids)
-                ->first();
+                ->orderBy('created_at', 'desc')
+                ->first();  // TODO, bug?
 
         if (!is_null($quiz)) {
             $question = Question::find($quiz->question_id);

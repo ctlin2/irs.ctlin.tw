@@ -85,7 +85,15 @@ const submit = () => {
         onError: (p) => {
             console.log('onError p::')
             console.log(p)
-            alert(p.errors)
+            // alert(p.errors)
+            Swal.fire({
+                text: p.status,
+                icon: 'error',
+                toast: true,
+                showConfirmButton: false,
+                position: 'center',
+                timer: 3500
+            });
         },
         onSuccess: () => {
             // alert('作答完成')
@@ -94,7 +102,7 @@ const submit = () => {
                 icon: 'success',
                 toast: true,
                 showConfirmButton: false,
-                position: 'middle',
+                position: 'center',
                 timer: 3500
             });
         },
@@ -102,7 +110,7 @@ const submit = () => {
 }
 
 const replaceUrl = () => {
-    if (hasNotQuiz === false) {
+    if (!hasNotQuiz) {
         let changeUrl = `https://irs.ctlin.tw/student/quiz?course_id${props.quiz.course_id}&course_date=${props.quiz.course_date}`;
         if (window.location.href !== changeUrl)
             window.location.href = changeUrl;

@@ -18,7 +18,7 @@ return new class extends Migration
             );
             $table->foreignId('group_id')->nullable()->constrained();
             $table->unsignedSmallInteger('status')->default(0);
-            $table->foreignId('course_id')->constrained;
+            $table->foreignId('course_id')->constrained();
             $table->date('course_date');
             $table->smallInteger('s_point'); // 個人積點
             // $table->timestamps();
@@ -33,6 +33,7 @@ return new class extends Migration
         Schema::table('s_points', function (Blueprint $table) {
             $table->dropForeign(['group_id']);
             $table->dropForeign(['std_id']);
+            $table->dropForeign(['course_id']);
         });
         Schema::dropIfExists('s_points');
     }

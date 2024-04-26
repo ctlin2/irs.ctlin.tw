@@ -138,7 +138,7 @@ const postData = (data: object): void => {
                 icon: 'success',
                 toast: true,
                 showConfirmButton: false,
-                position: 'middle',
+                position: 'center',
                 timer: 3500
             });
             if (currentQuestionInfo.value.id === null) { // Added by C.T.Lin
