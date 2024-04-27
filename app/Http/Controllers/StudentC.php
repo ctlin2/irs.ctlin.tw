@@ -163,14 +163,15 @@ class StudentC extends BaseController
         // need get the quiz
         $question = null;
         $q_option = null;
+        $time_left = null;
 
         $std_id = session('std_id');
         $course_id = session('course_id');
 
         $after_ans_quiz_ids = Course_attempt::where('std_id', $std_id)->pluck('course_quiz_id')->all();
         
-        $cts = Carbon::now()->format('Y-m-d H:m:s');
-        Log::info('(StudentC/loginPost enterQuiz())NOW='.json_encode(date('Y-m-d H:m:s', time()))); // 時間一樣，但與系統時間差異過大？為什麼? C.T.Lin
+        $cts = Carbon::now()->toDateTimeString(); // format('Y-m-d H:i:s');
+        Log::info('(StudentC/loginPost enterQuiz())NOW='.$cts); // 
         $quiz = Course_quiz::where('course_id', $course_id)
                 // ->whereDate('course_date', Carbon::today()->format('Y-m-d')) // modified by C.T.Lin
                 // ->where('created_at', '<=', $cts)
@@ -183,12 +184,14 @@ class StudentC extends BaseController
             $question = Question::find($quiz->question_id);
             // using makeHidden method hidden is_correct field
             $q_option = QuestionOption::where('question_id', $quiz->question_id)->get()->makeHidden(['is_correct']);
+            $time_left = Carbon::parse($quiz->expired_at)->diff(Carbon::now())->format('%H:%I:%S');
         }
 
         return Inertia::render('student/Quiz', [
                 'quiz' => $quiz,
                 'question' => $question,
                 'q_option' => $q_option,
+                'time_left' => $time_left ? $time_left : '00:00:00'
             ]);
 
     }

@@ -21,30 +21,35 @@ Head(title="課堂測驗")
                         | {{ getAlpha(index) }}.
                         | {{ item.name }}
             PrimaryButton(@click="submit") 送出
+            | {{ timeLeft }}
             div.text-red-500(v-if="e_msg !== ''") {{ e_msg }}
             //- added by C.T.Lin 
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, defineProps, watch } from 'vue';
+import { ref, reactive, computed, defineProps, onMounted, watch } from 'vue';
 import {Head, useForm} from '@inertiajs/vue3';
 import * as _ from 'lodash';
 import { Question, QOption, CourseQuiz} from '@/Components/teacher/UtilsType';
 import TextInput from "@/Components/TextInput.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import Swal from 'sweetalert2';
+import moment from "moment";
 
 const props = defineProps<{
     quiz: CourseQuiz,
     question: Question,
     q_option: Array<QOption>,
+    time_left: string, // added by C.T.Lin
     e_msg?: string, // added by C.T.Lin
 }>();
 
 /* data */
+var interval = null;
 
 const chooseAns = ref<number>(null);
 const selected = ref([]);
+const countdown = ref('00:00:00');
 
 const my_class = reactive([
     {id: 1, class_name: '資工一A', course_title: '離散數學'}
@@ -60,6 +65,7 @@ const hasNotQuiz = computed(() => props.quiz === null);
 const single_answer = computed(() => props.question.question_type_id === 1);
 const multiple_answer = computed(() => props.question.question_type_id === 2);
 const url = computed(() => '/storage/images/' + props.question.media_url??'noimg-200-a.png' ); // added by C.T.Lin
+const timeLeft = computed(()=> '時間剩:' + countdown.value);
 
 /* methods */
 
@@ -77,6 +83,7 @@ const selectOpts = (id: number) => {
 }
 
 const submit = () => {
+    clearInterval(interval);
     useForm({
         course_quiz_id: props.quiz.id,
         q_option_id: chooseAns.value,
@@ -116,6 +123,27 @@ const replaceUrl = () => {
             window.location.href = changeUrl;
     }
 }
+
+const updateTimer = () => {
+    var duration = moment.duration(countdown.value);
+    if (duration.as('milliseconds') > 0){
+        duration.subtract(1, 'second');
+        countdown.value = moment.utc(duration.as('milliseconds')).format('HH:mm:ss');
+    }
+    else {
+        countdown.value = '00:00:00';
+        clearInterval(interval);
+        console.log('time off');
+    }
+}
+
+onMounted(() => {
+    var duration  = moment.duration(props.time_left);
+    countdown.value = moment.utc(duration.as('milliseconds')).format('HH:mm:ss');
+    interval =setInterval(function () {
+        updateTimer();
+    }.bind(this), 1000);  // set 1000 to any number you need
+})
 
 /* created */
 
