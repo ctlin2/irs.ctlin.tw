@@ -141,7 +141,7 @@ class StudentC extends BaseController
                     ]);
                 }
             }
-            session()->flash('message', "作答完成"); // C.T.Lin
+            // session()->flash('message', "作答完成"); // C.T.Lin
             return back()->with('status', '答案已提交');
         }
         else {

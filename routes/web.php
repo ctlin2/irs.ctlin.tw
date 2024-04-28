@@ -95,12 +95,7 @@ Route::middleware('ksu')->group(function () {
 
         Route::get('quiz_answer_detail', [QuizC::class, 'quizAnswerDetail']);
         Route::post('quiz_answer_detail',[QuizC::class, 'quizAnswerDetailPost']); // added by C.T.Lin
-
-//        , function () {
-//        return Inertia::render('teacher/Course');
-//    });
     });
-//    ->middleware('ksu');
 });
 
 Route::prefix('student')->group(function(){

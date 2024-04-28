@@ -13,13 +13,16 @@ Head(title="課堂測驗")
             img(v-show="question.media_type == 'image'" :src="url" style="max-width:700px;").mx-auto.w-80
             //- img added by C.T.Lin //
             .py-4.px-8
-                .flex.flex-col.gap-4
+                div(v-if="multichoice").flex.flex-col.gap-4
                     label.flex.gap-2.items-center(v-for="(item, index) in q_option")
                         TextInput(v-if="single_answer" type="radio" name="ans" v-model="chooseAns" :value="item.id")
                         TextInput(v-if="multiple_answer" type="checkbox" name="ans"
                         v-on:click="()=>{selectOpts(item.id)}") :value="item.id")
                         | {{ getAlpha(index) }}.
                         | {{ item.name }}
+                div(v-if="question.question_type_id === 3").flex.flex-col.gap-4
+                    InputLabel(v-if="question.question_type_id === 3" value="填充題答案:").text-lg
+                    TextInput(v-if="question.question_type_id === 3" v-model="answer")
             PrimaryButton(@click="submit") 送出
             | {{ timeLeft }}
             div.text-red-500(v-if="e_msg !== ''") {{ e_msg }}
@@ -31,6 +34,7 @@ import { ref, reactive, computed, defineProps, onMounted, watch } from 'vue';
 import {Head, useForm} from '@inertiajs/vue3';
 import * as _ from 'lodash';
 import { Question, QOption, CourseQuiz} from '@/Components/teacher/UtilsType';
+import InputLabel from "@/Components/InputLabel.vue";
 import TextInput from "@/Components/TextInput.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import Swal from 'sweetalert2';
@@ -49,6 +53,7 @@ var interval = null;
 
 const chooseAns = ref<number>(null);
 const selected = ref([]);
+const answer = ref(null); // for fill-in question, C.T.Lin
 const countdown = ref('00:00:00');
 
 const my_class = reactive([
@@ -64,6 +69,8 @@ const hasNotQuiz = computed(() => props.quiz === null);
 
 const single_answer = computed(() => props.question.question_type_id === 1);
 const multiple_answer = computed(() => props.question.question_type_id === 2);
+const multichoice = computed(() => props.question.question_type_id === 1 ||
+                                props.question.question_type_id === 2);
 const url = computed(() => '/storage/images/' + props.question.media_url??'noimg-200-a.png' ); // added by C.T.Lin
 const timeLeft = computed(()=> '時間剩:' + countdown.value);
 
@@ -86,8 +93,9 @@ const submit = () => {
     clearInterval(interval);
     useForm({
         course_quiz_id: props.quiz.id,
-        q_option_id: chooseAns.value,
-        selected: selected.value,
+        q_option_id: chooseAns.value, // for single answer
+        selected: selected.value, // for multiple answers
+        answer: answer.value, // for fill-in answer
     }).post('/student/quiz', {  // modified by C.T.Lin
         onError: (p) => {
             console.log('onError p::')

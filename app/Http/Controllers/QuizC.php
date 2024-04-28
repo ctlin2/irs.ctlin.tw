@@ -153,33 +153,51 @@ class QuizC extends BaseController
     }
 
     private function addQuestion(Request $req){
-       Log::info('addQuestion'.json_encode($req->all()));
-        $vue_q_obj=$req->get('question');
-        $q_name=$vue_q_obj['name'];
-        $q_type_id=$vue_q_obj['question_type_id'];
-        $q_topic_id=$vue_q_obj['topic_id'];
-        $q_options= $req->get('q_options');
-
-        // added by C.T.Lin to determinate multiple answers.
-        $len_correct = 0;
-        foreach($q_options as $q_option){
-            if ($q_option['is_correct'] !== false){
-                ++$len_correct;
-            };
-        }
-        $q_rd=Question::create([
-            'name'=>$q_name,
-            'question_type_id'=>$len_correct > 1 ? 2 : $q_type_id, // modified by C.T.Lin
-            'is_active'=>1,
-        ]);
+        Log::info('addQuestion'.json_encode($req->all()));
+        $vue_q_obj = $req->get('question');
+        $q_name = $vue_q_obj['name'];
+        $q_type_id = $vue_q_obj['question_type_id'];
+        $q_topic_id = $vue_q_obj['topic_id'];
+        $q_answer = $vue_q_obj['answer'];
+        $q_options = $req->get('q_options');
+        // TODO: media_type, media_url
         
-        foreach($q_options as $q_option){
-            QuestionOption::create([
-               'question_id'=>$q_rd->id,
-                'name'=>$q_option['name'],
-                'is_correct'=>$q_option['is_correct'],
-            ]);
+        switch($q_type_id){
+            case 1: // multichoice question
+            case 2:
+                // added by C.T.Lin to determinate multiple answers.
+                $len_correct = 0;
+                foreach($q_options as $q_option){
+                    if ($q_option['is_correct'] !== false){
+                        ++$len_correct;
+                    };
+                }
+                $q_rd=Question::create([
+                    'name'=>$q_name,
+                    'question_type_id'=>$len_correct > 1 ? 2 : $q_type_id, // modified by C.T.Lin
+                    'is_active'=>1,
+                ]);
+                
+                foreach($q_options as $q_option){
+                    QuestionOption::create([
+                    'question_id'=>$q_rd->id,
+                        'name'=>$q_option['name'],
+                        'is_correct'=>$q_option['is_correct'],
+                    ]);
+                }
+                break;
+            case 3: // fill-in question
+                $q_rd=Question::create([
+                    'name'=>$q_name,
+                    'question_type_id'=>$q_type_id,
+                    'is_active'=>1,
+                    'answer'=>$q_answer
+                ]);
+                break;
+            default:
+                // TODO
         }
+        
         // jin-mo modify
         if (!is_null($q_topic_id)) {
             Topicable::create([
@@ -193,62 +211,73 @@ class QuizC extends BaseController
     private function changeQuestion(Request $req){
         Log::info("Changing Question ".json_encode($req->all()));
         // jin-mo modify
-        $question = $req->get('question');
+        $vue_q_obj = $req->get('question');
+        // C.T.Lin
+        // $q_name = $vue_q_obj['name'];
+        $q_type_id = $vue_q_obj['question_type_id'];
+        // $q_topic_id = $vue_q_obj['topic_id'];
+        // $q_answer = $vue_q_obj['answer'];
         $q_options = $req->get('q_options');
         $del_options = $req->get('del_options');
 
-        // step 1 del option
-        if (count($del_options) != 0) {
-            QuestionOption::whereIn('id', $del_options)->delete();
-        }
+        if ($q_type_id === 1 || $q_type_id === 2){
+            // step 1 del option
+            if (count($del_options) != 0) {
+                QuestionOption::whereIn('id', $del_options)->delete();
+            }
 
-        // step 2 update options
-        foreach ($q_options as $item) {
-            if (is_null($item['id'])) {
-                QuestionOption::create([
-                    'question_id' => $question['id'],
-                    'name' => $item['name'],
-                    'is_correct' => $item['is_correct']
-                ]);
-            } else {
-                QuestionOption::find($item['id'])->update(['name' => $item['name'], 'is_correct' => $item['is_correct']]);
+            // step 2 update options
+            foreach ($q_options as $item) {
+                if (is_null($item['id'])) {
+                    QuestionOption::create([
+                        'question_id' => $vue_q_obj['id'],
+                        'name' => $item['name'],
+                        'is_correct' => $item['is_correct']
+                    ]);
+                } else {
+                    QuestionOption::find($item['id'])->update([
+                        'name' => $item['name'], 
+                        'is_correct' => $item['is_correct']
+                    ]);
+                }
             }
         }
 
         // step 3 update question
-        if($question['id']==null){
-            $vue_q_obj=$req->get('question');
+        if($vue_q_obj['id']===null){  // ? this case seems impossible.
             $q_name=$vue_q_obj['name'];
-            $q_type_id=$vue_q_obj['question_type_id'];
-            $q_rd=Question::create(
-                [
+            // $q_type_id=$vue_q_obj['question_type_id'];
+            $q_rd=Question::create([
                 'name'=>$q_name,
                 'question_type_id'=>$q_type_id,
                 'is_active'=>1,
-                ]
-            );
+                'answer'=>$vue_q_obj['answer'], 
+            ]);
         }else{
-            $q_rd=Question::find($question['id']);
+            $q_rd=Question::find($vue_q_obj['id']);
             
             // added by C.T.Lin
-            $option_count = QuestionOption::where('question_id', '=', $question['id'])
+            $option_count = QuestionOption::where('question_id', '=', $vue_q_obj['id'])
                 ->where('is_correct', '=', 1)->count();       
-            $q_rd->update(['name' => $question['name'], 'question_type_id' => $option_count > 1 ? 2 : 1]); // modified by C.T.Lin
+            $q_rd->update([
+                'name' => $vue_q_obj['name'], 
+                'question_type_id' => $option_count > 1 ? 2 : $q_type_id,
+                'answer'=>$vue_q_obj['answer'], 
+            ]); // modified by C.T.Lin
         }
 
         Log::info("q_rd= ".json_encode($q_rd));
 
-//        $q_rd->update(['name' => $question['name']]);
-//        Question::find($question['id'])->update(['name' => $question['name']]);
-
         // step 4 update topicable
-        if (is_null($question['topic_id'])) {
-//            Topicable::where('topicable_id', $question['id'])->where('topicable_type', 'questions')->delete();
-            Topicable::where('topicable_id', $q_rd->id)->where('topicable_type', 'questions')->delete();
+        if (is_null($vue_q_obj['topic_id'])) {
+//            Topicable::where('topicable_id', $vue_q_obj['id'])->where('topicable_type', 'questions')->delete();
+            Topicable::where('topicable_id', $q_rd->id)
+                ->where('topicable_type', 'questions')
+                ->delete();
         } else {
             Topicable::updateOrCreate(
                 ['topicable_id' => $q_rd->id, 'topicable_type' => 'questions'],
-                ['topic_id' => $question['topic_id']]
+                ['topic_id' => $vue_q_obj['topic_id']]
             );
         }
     }
@@ -319,11 +348,37 @@ class QuizC extends BaseController
         $report=null;
         foreach($course_quiz_rds as $course_quiz_rd){
             $quiz_id=$course_quiz_rd->id;
-            $no_attempts = Course_attempt::where('course_quiz_id', $quiz_id)->count();
-            $get_report_data = DB::select("CALL quiz_report2(?)", array($quiz_id))[0];
+            $number_of_attempts = Course_attempt::where('course_quiz_id', $quiz_id)->count();
+            // find quiz question
+            $question = Question::find(Course_quiz::find($quiz_id)->question_id);
+            $q_type_id = $question->question_type_id;
+            // get correct count
+            switch($q_type_id){
+                case 1:
+                case 2: 
+                    $get_report_data = DB::select("CALL quiz_report2(?)", array($quiz_id))[0]; // for multichoice question
+                    $correct_count = intval($get_report_data->correct_count) ?? 0;
+                    break;
+                case 3:
+                    $correct_answers = Course_attempt::where('course_quiz_id', $quiz_id)
+                        ->join('students', 'course_attempts.std_id', '=', 'students.id')
+                        ->join('course_attempt_answers', 'course_attempt_answers.course_attempt_id', '=', 'course_attempts.id')
+                        ->where('course_attempt_answers.answer', 'regexp', $question->answer) // matching, C.T.Lin
+                        ->select('course_attempt_answers.course_attempt_id', // added by C.T.Lin
+                            'course_attempt_answers.answer', 
+                            'course_attempts.std_id', // added by C.T.Lin
+                            'students.std_no', 'students.std_name')
+                        ->orderby('course_attempt_answers.created_at')
+                        ->get();
+                    $correct_count = $correct_answers->count() ?? 0;
+                    break;
+                default:
+                    $correct_count = 0;
+            }
+            
 
-            $report[$quiz_id]['std_answer_num']=intval($no_attempts) ?? 0;
-            $report[$quiz_id]['std_answer_correct_num']=intval($get_report_data->correct_count) ?? 0;
+            $report[$quiz_id]['std_answer_num']=intval($number_of_attempts) ?? 0;
+            $report[$quiz_id]['std_answer_correct_num']= $correct_count;
         }
 
         $course = Course::find($course_id);
@@ -360,29 +415,50 @@ class QuizC extends BaseController
         $q_options = QuestionOption::where('question_id', $quiz_rd->question_id)->get();
 //         $answers = Course_attempt::where('course_quiz_id', $course_quiz_id)->get();
         $answers = Course_attempt::where('course_quiz_id', $course_quiz_id)
-                                    ->join('students', 'course_attempts.std_id', '=', 'students.id')
-                                    ->join('course_attempt_answers', 'course_attempt_answers.course_attempt_id', '=', 'course_attempts.id')
-                                    ->select('course_attempt_answers.course_attempt_id', // added by C.T.Lin
-                                        'course_attempt_answers.question_option_id', 
-                                        'course_attempts.std_id', // added by C.T.Lin
-                                        'students.std_no', 'students.std_name')
-                                    ->orderby('course_attempt_answers.created_at')
-                                    ->get();
-        // ToDo : fill-in question
+                    ->join('students', 'course_attempts.std_id', '=', 'students.id')
+                    ->join('course_attempt_answers', 'course_attempt_answers.course_attempt_id', '=', 'course_attempts.id')
+                    ->select('course_attempt_answers.course_attempt_id', // added by C.T.Lin
+                        'course_attempt_answers.question_option_id', // for multichoice question
+                        'course_attempt_answers.answer',  // for fill-in question
+                        'course_attempts.std_id', // added by C.T.Lin
+                        'students.std_no', 'students.std_name')
+                    ->orderby('course_attempt_answers.created_at')
+                    ->get();
+        
+        // find quiz question type
+        $question = Question::find(Course_quiz::find($course_quiz_id)->question_id);
+        $q_type_id = $question->question_type_id;
+        $correct_answers = null;
+        if ($q_type_id == 3)
+            $correct_answers = Course_attempt::where('course_quiz_id', $course_quiz_id)
+                    ->join('students', 'course_attempts.std_id', '=', 'students.id')
+                    ->join('course_attempt_answers', 'course_attempt_answers.course_attempt_id', '=', 'course_attempts.id')
+                    ->where('course_attempt_answers.answer', 'regexp', $question->answer) // matching
+                    ->select('course_attempt_answers.course_attempt_id', // added by C.T.Lin
+                        'course_attempt_answers.question_option_id', // for multichoice question
+                        'course_attempt_answers.answer',  // for fill-in question
+                        'course_attempts.std_id', // added by C.T.Lin
+                        'students.std_no', 'students.std_name')
+                    ->orderby('course_attempt_answers.created_at')
+                    ->get();
 
         // dd($quiz_rd);
 
         if($req->has('json')) {
             return response()->json([
                 'quiz_info' => $quiz_rd,
+                'q_type_id' => $q_type_id,
                 'std_answers' => $answers,
+                'correct_std_answers' => $correct_answers, // for fill-in
                 'q_options' => $q_options,
             ]);
         } else {
             return Inertia::render('teacher/QuizAnswerDetail', [
                 'quiz_info' => $quiz_rd,
-                'std_answers' => $answers,  // maybe empty array
-                'q_options' => $q_options,
+                'q_type_id' => $q_type_id,
+                'std_answers' => $answers,  // array may be empty 
+                'correct_std_answers' => $correct_answers, // for fill-in
+                'q_options' => $q_options,  // for multichoice
             ]);
         }
     }
@@ -433,20 +509,14 @@ class QuizC extends BaseController
     }
 
 
-    private function addQuiz(Request $req,$course_id,$course_date){
+    private function addQuiz(Request $req, $course_id, $course_date){
         // teacher add a quiz
-        // course_id,course_date , topic_id
-        // if there are course_id & course_date then get the quiz
-        // chose a question assign to quiz_questions
+        // given course_id, course_date, topic_id
+        // if there are course_id & course_date, then create a course quiz,
+        // choose a question and assign it to the course_quiz.
 
         if ($req->get('question_id') == null)
             return redirect('teacher/quiz');
-
-        // TODO: 如果找不到今日的 s_points，則要退回課程
-        // if (S_point::where('course_date', '=', Carbon::now()->format('Y-m-d'))->count()===0){
-        //     return redirect('teacher/course')->with('errors', '今日尚未建立課程');
-            // return back()->with('errors', '今日尚未建立課程');
-        // }
 
         $course_date = Carbon::now()->format('Y-m-d'); // Since a quiz is taken today,
         session(['course_date' => $course_date]); // we must back to today, otherwise no quiz appears.
@@ -462,12 +532,12 @@ class QuizC extends BaseController
             DB::select("CALL open_course(?,?)",array($course_id, $course_date));
         }
 
-        $expired_time_min=$req->get('expired_time')??5;
-        $created_at= Carbon::now();
+        $expired_time_min = $req->get('expired_time')??5;
+        $created_at = Carbon::now();
         $expired_at =  $created_at->copy()->addMinutes($expired_time_min);
 
         Course_quiz::create([
-           'course_id' => $course_id,
+            'course_id' => $course_id,
             'course_date' => $course_date,
             'question_id'=>$req->get('question_id'),
             'created_at' => $created_at,
@@ -477,7 +547,7 @@ class QuizC extends BaseController
     }
 
     private function delQuiz(Request $req){
-        $quiz_id= $req->get('quiz_id');
+        $quiz_id = $req->get('quiz_id');
         Course_attempt::where('course_quiz_id',$quiz_id)->delete();
         Course_quiz::find($quiz_id)->delete();
     }
@@ -487,49 +557,55 @@ class QuizC extends BaseController
     }
 
     private function addStudentPoints(Request $req){
+        $q_type_id = $req->get('q_type_id');
         $student_answers = $req->get('student_answers');
-        $mark = $req->get('marks');;
-        $course_attempt = Course_attempt::find($student_answers[0]['course_attempt_id']);
+        $mark = $req->get('marks');
+        if ($q_type_id !== 3){
+            $course_attempt = Course_attempt::find($student_answers[0]['course_attempt_id']);
 
-        // find all the students who have taken the same quiz and answer correctly.
-        $sql = <<<EOD
-        select course_attempts.id as course_attempt_id, course_attempts.std_id
-        from course_attempts  
-        join course_quizzes
-        on course_attempts.course_quiz_id = course_quizzes.id
-        where course_quizzes.id = :in_course_quiz_id
-        and 
-        course_attempts.id not in (
-        (
-            select course_attempts.id 
-            from course_attempt_answers
-            join question_options
-            on course_attempt_answers.question_option_id = question_options.id
+            // find all the students who have taken the same quiz and answer correctly.
+            $sql = <<<EOD
+            select course_attempts.id as course_attempt_id, course_attempts.std_id
+            from course_attempts  
             join course_quizzes
-            on course_quizzes.question_id = question_options.question_id
-            join course_attempts 
-            on course_attempts.id = course_attempt_answers.course_attempt_id
-            where question_options.is_correct = 0
-        ) 
-        union 
-        (
-            select course_attempts.id
-            from question_options
-            join course_quizzes
-            on question_options.question_id = course_quizzes.question_id
-            join course_attempts
             on course_attempts.course_quiz_id = course_quizzes.id
-            where question_options.is_correct = 1
-            and question_options.id NOT IN (
-            select question_option_id 
-            from course_attempt_answers
-            join course_attempts
-            on course_attempts.id = course_attempt_answers.course_attempt_id)
-        ))
-        EOD;
-        $correct_attempts = DB::select($sql, array('in_course_quiz_id'=>$course_attempt->course_quiz_id));
-        // dd($correct_attempts);
-        $students = array_map(function($o){return $o->std_id; }, $correct_attempts);
+            where course_quizzes.id = :in_course_quiz_id
+            and 
+            course_attempts.id not in (
+            (
+                select course_attempts.id 
+                from course_attempt_answers
+                join question_options
+                on course_attempt_answers.question_option_id = question_options.id
+                join course_quizzes
+                on course_quizzes.question_id = question_options.question_id
+                join course_attempts 
+                on course_attempts.id = course_attempt_answers.course_attempt_id
+                where question_options.is_correct = 0
+            ) 
+            union 
+            (
+                select course_attempts.id
+                from question_options
+                join course_quizzes
+                on question_options.question_id = course_quizzes.question_id
+                join course_attempts
+                on course_attempts.course_quiz_id = course_quizzes.id
+                where question_options.is_correct = 1
+                and question_options.id NOT IN (
+                select question_option_id 
+                from course_attempt_answers
+                join course_attempts
+                on course_attempts.id = course_attempt_answers.course_attempt_id)
+            ))
+            EOD;
+            $correct_attempts = DB::select($sql, array('in_course_quiz_id'=>$course_attempt->course_quiz_id));
+            $students = array_map(function($o){return $o->std_id; }, $correct_attempts); // pluck
+        }
+        else {
+            $students = array_map(function($o){return $o['std_id']; }, $student_answers); // pluck
+        }
+        
         // dd($students);
 
         S_point::where('course_id', '=', session('course_id'))

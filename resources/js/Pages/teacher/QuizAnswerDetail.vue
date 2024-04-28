@@ -27,7 +27,10 @@ Head(title="答題分析")
             //    | {{ item.is_correct ? '正確' : '錯誤' }}
             div(v-for="(std, s_index) in getStudents(item.id)" class="odd:bg-gray-200 even:bg-violet-200 py-2 px-4")
                 | {{ std.std_no }} {{ std.std_name }}
-
+    .flex.gap-4.p-4.justify-center(v-if="q_type_id=== 3")
+        .flex.flex-wrap(v-for="(item, index) in std_answers")
+            .flex.px-4.py-2.mb-3.font-medium
+                | {{ item.std_name }} {{ item.answer }} {{ correct_wrong(item.std_id) }}
 </template>
 
 <script setup lang="ts">
@@ -47,7 +50,9 @@ interface StdAnswers extends Answers{
 
 const props = defineProps<{
     quiz_info: CourseQuiz,
+    q_type_id: number,
     std_answers: Array<StdAnswers>,
+    correct_std_answers: Array<StdAnswers>,
     q_options: Array<QOption>,
 }>();
 
@@ -82,6 +87,10 @@ const getCount = (item: StdAnswers[]) => _.size(item);
 
 const toggleShowCorrect = () => showCorrect.value = !showCorrect.value;
 
+// C.T.Lin
+const correct_wrong = (std_id: number) => 
+    _.size(_.filter(props.correct_std_answers, { 'std_id': std_id })) > 0 ? '(答對)': '（答錯）'; 
+
 const postData = (data: object): void => {
     console.log(data);
     useForm(data).post('/teacher/quiz_answer_detail',
@@ -106,12 +115,24 @@ const postData = (data: object): void => {
 }
 
 const addStudentPoints = () => {
-    let data = {
-        _action: 'add_student_points',
-        student_answers:  _.uniqBy(props.std_answers, 'std_no'),
-        marks: current_quiz_marks.value,
-    };
-    postData(data);
+    if (props.q_type_id === 3){ // fill-in
+        let data = {
+            _action: 'add_student_points',
+            q_type_id: 3,
+            student_answers:  props.correct_std_answers,
+            marks: current_quiz_marks.value,
+        };
+        postData(data);
+    }
+    else {
+        let data = {
+            _action: 'add_student_points',
+            q_type_id: 1, // or 2
+            student_answers:  _.uniqBy(props.std_answers, 'std_no'),
+            marks: current_quiz_marks.value,
+        };
+        postData(data);
+    }
 };
 
 const addAttendant = () => {

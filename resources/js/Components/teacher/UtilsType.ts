@@ -13,6 +13,7 @@ export interface Question {
     topic_id: number,
     media_url?: string, // added by C.T.Lin
     media_type?: string, // added by C.T.Lin
+    answer?: string, // added by C.T.Lin
 }
 
 export interface QOption {
@@ -83,4 +84,5 @@ export interface Answers {
     course_quiz_id: number,
     std_id: number,
     question_option_id: number, // q_option_id
+    answer: string, // C.T.Lin, for fill-in question
 }

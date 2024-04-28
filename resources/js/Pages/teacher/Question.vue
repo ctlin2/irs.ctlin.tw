@@ -5,6 +5,9 @@ Head(title="題庫管理")
 BaseLayout
     template(#left)
         .flex
+            select(v-model="currentQuestionInfo.question_type_id" @change="changeQuestinoType").appearance-none.rounded-md.px-1.py-1.gap-1.flex-1
+                option(v-for="(item, index) in question_types" :value="item.id" :selected="item.id === currentQuestionInfo.question_type_id")
+                    | {{ item.name }}
             PrimaryButton(@click="onClickAddQuestion") 新增題目
         .border.border-white.border-collapse.overflow-y-auto(style="max-height: 700px;")
             .bg-white.px-4.py-2.border-y.border-gray-400.select-none.flex.justify-between.truncate(v-for="(item, index) in questions"
@@ -54,19 +57,25 @@ const props = defineProps({
 /* data */
 
 const topicId = ref<number>(null);
+// const selected_question_type = ref(1);
 // const isCreated = ref(false);
 const currentQuestionId = ref<number>();
+const fixed_question_type_id = ref<number>(1);
 const currentQuestionInfo = ref<QuesType>({
     id: null,
     name: '',
     topic_id: null,
     question_type_id: 1,
+    answer: null,
 });
 const currentQOptions = ref<Array<QOption>>([]);
 const delQOptions = reactive<Array<number>>([]);
 // const questions = toRefs(props.questions);
 // const q_options = toRefs(props.q_options);
-
+const question_types = ref<Array<Object>>([
+    { id: 1, name: '選擇題' },
+    { id: 3, name: '填充題' },
+]);
 
 /* computed */
 
@@ -91,13 +100,23 @@ const filterQuestionOptions = (q_id: number) => _.filter(q_options.value, {quest
 const onClickSelectedQuestion = (val: number): void => {
     currentQuestionId.value = val;
     currentQuestionInfo.value = _.cloneDeep(_.find(questions.value, {id: val}));
+    fixed_question_type_id.value = currentQuestionInfo.value.question_type_id;
     currentQOptions.value = _.cloneDeep(filterQuestionOptions(val));
     delQOptions.splice(0);
-    // isCreated.value = false;
 }
 
 const changeCurrentQTopic = (topic_id: number): void => {
     currentQuestionInfo.value.topic_id = topic_id;
+}
+
+// C.T.Lin
+const changeQuestinoType = () => {
+    // in editing mode, can't change question_type_id, so recover it.
+    if (currentQuestionInfo.value.question_type_id !== fixed_question_type_id.value &&
+        currentQuestionInfo.value.id !== null){
+        currentQuestionInfo.value.question_type_id = fixed_question_type_id.value;
+    }
+    console.log('current question type', currentQuestionInfo.value.question_type_id);
 }
 
 const onClickAddQuestion = (): void => {
@@ -106,6 +125,7 @@ const onClickAddQuestion = (): void => {
         name: '',
         topic_id: topicId.value,
         question_type_id: 1,
+        answer: null,
     }
     currentQuestionId.value = null;
     currentQOptions.value = [];
@@ -141,7 +161,7 @@ const postData = (data: object): void => {
                 position: 'center',
                 timer: 3500
             });
-            if (currentQuestionInfo.value.id === null) { // Added by C.T.Lin
+            if (currentQuestionInfo.value.id === null) { //creating, Added by C.T.Lin
                 onClickAddQuestion();
             }
              

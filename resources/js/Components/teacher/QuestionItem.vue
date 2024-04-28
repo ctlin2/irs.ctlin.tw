@@ -8,7 +8,7 @@
         img(v-show="question.media_type == 'image'" :src="url" style="max-width:700px;").w-128
         //- img added by C.T.Lin //  
     .flex 
-        PrimaryButton(@click="onClickAddOption") add option
+        PrimaryButton(v-show="question.question_type_id === 1" @click="onClickAddOption") add option
     .flex.flex-col.gap-2(v-for="(item, index) in options")
         | 選項 {{ index + 1 }}
         .flex.items-center.gap-2
@@ -18,7 +18,8 @@
                 TextInput(type="checkbox" :value="item.id" name="isCorrect" v-model="option_indices" :checked="item.is_correct" @click="toggleChecked(item)")
             PrimaryButton(@click="onClickDelOption(item.id, index)" class="!bg-red-500")
                 | 刪除
-    
+    InputLabel(v-if="question.question_type_id === 3" value="填充題答案:(使用正規表示法，如^pattern1$|^pattern2$)").text-lg
+    TextInput(v-if="question.question_type_id === 3" v-model="question.answer")
     .flex.gap-4
         PrimaryButton(@click="onSave") 
             | {{ upateOrCreate }}
@@ -30,8 +31,10 @@
 import { ref, toRefs, computed, defineProps, defineEmits } from 'vue';
 import SimpleTopic from "@/Components/teacher/SimpleTopic.vue";
 import TextInput from "@/Components/TextInput.vue";
+import InputLabel from "@/Components/InputLabel.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import { Topic, Question as QuesType, QOption } from './UtilsType';
+import Question from '@/Pages/teacher/Question.vue';
 
 
 const emit = defineEmits(['addOption', 'delOption', 'save', 'delete', 'changeTopic']);
