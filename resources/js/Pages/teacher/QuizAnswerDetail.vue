@@ -29,8 +29,8 @@ Head(title="答題分析")
                 | {{ std.std_no }} {{ std.std_name }}
     .flex.gap-4.p-4.justify-center(v-if="q_type_id=== 3")
         .flex.flex-wrap(v-for="(item, index) in std_answers")
-            .flex.px-4.py-2.mb-3.font-medium
-                | {{ item.std_name }} {{ item.answer }} {{ correct_wrong(item.std_id) }}
+            .flex.px-4.py-2.mb-3.font-medium(:class="[showCorrect ? getCorrectStyle(is_correct(item.std_id)) : 'bg-gray-200', 'outline-1 outline-offset-1 outline-black']")
+                | {{ item.std_no }} {{ item.std_name }}:「{{ item.answer }}」 {{ correct_wrong(item.std_id) }}
 </template>
 
 <script setup lang="ts">
@@ -88,8 +88,9 @@ const getCount = (item: StdAnswers[]) => _.size(item);
 const toggleShowCorrect = () => showCorrect.value = !showCorrect.value;
 
 // C.T.Lin
-const correct_wrong = (std_id: number) => 
-    _.size(_.filter(props.correct_std_answers, { 'std_id': std_id })) > 0 ? '(答對)': '（答錯）'; 
+const is_correct = (std_id: number) => _.size(_.filter(props.correct_std_answers, { 'std_id': std_id })) > 0;
+const correct_wrong = (std_id: number) => showCorrect.value ? (
+    _.size(_.filter(props.correct_std_answers, { 'std_id': std_id })) > 0 ? '(答對)': '（答錯）') : '(待評)'; 
 
 const postData = (data: object): void => {
     console.log(data);
