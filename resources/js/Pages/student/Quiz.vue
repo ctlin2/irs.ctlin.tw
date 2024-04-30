@@ -20,6 +20,7 @@ Head(title="課堂測驗")
                         v-on:click="()=>{selectOpts(item.id)}") :value="item.id")
                         | {{ getAlpha(index) }}.
                         | {{ item.name }}
+            .p-1
                 div(v-if="question.question_type_id === 3").flex.flex-col.gap-4
                     InputLabel(v-if="question.question_type_id === 3" value="填充題答案:").text-lg
                     TextInput(v-if="question.question_type_id === 3" v-model="answer")

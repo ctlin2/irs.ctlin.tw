@@ -15,7 +15,7 @@
     // - body
     .p-4.grid.grid-cols-2.gap-4
         .border.text-center.bg-gray-100.cursor-pointer.select-none(v-for="(item, index) in group_std" @click="click_std(item.id)"
-            :class="['hover:bg-gray-300', {'border-2 border-cyan-400': has_select_std(item.id)}]")
+            :class="['hover:bg-gray-300', {'border-2 border-cyan-400': has_select_std(item.id)}, {'text-red-500': is_absent(item.status)}]")
             | {{ item.std_no }} #[br] {{ item.std_name }}
     // - footer
     .flex.justify-center.px-4.py-2.rounded-b-md.border-t
@@ -67,6 +67,7 @@ const add_point = () => emit('addPoint', props.group_info);
 const sub_point = () => emit('subPoint', props.group_info);
 
 const has_select_std = (std_id) => _.includes(props.select_std, std_id);
+const is_absent = (std_status) => std_status === 4; // TODO
 const click_std = (std_id) => emit('onClickStd', std_id);
 
 const click_group = () => emit('onClickGroup', group_id.value);

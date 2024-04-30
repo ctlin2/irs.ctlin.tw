@@ -102,7 +102,7 @@ class StudentC extends BaseController
         $course_quiz_id = $req->get('course_quiz_id');
         $q_option_id = $req->get('q_option_id');  // for single-answer question
         $selected_options = $req->get('selected');  // for multiple-answer question
-        $answer = $req->get('answer');  // for fill-in question
+        $answer = trim($req->get('answer'));  // for fill-in question
         // $std_id = session('std_id');
         $std_id = Student::where('std_no', '=', $req->user()->name)->first()->id;
 
