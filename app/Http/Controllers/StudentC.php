@@ -125,14 +125,7 @@ class StudentC extends BaseController
                     'question_option_id' => $q_option_id
                 ]);
             }
-            else if (!is_null($answer)){ // fill-in question
-                $attempt_answer = Course_attempt_answer::Create([
-                    'course_attempt_id' => $attempt->id, 
-                    'quiz_question_id' => $attempt->question_id,
-                    'answer' => $answer
-                ]);
-            }
-            else { // multiple-answer question
+            else if (!empty($selected_options)) { // multiple-answer question
                 foreach ($selected_options as $option) {
                     $attempt_answer = Course_attempt_answer::Create([
                         'course_attempt_id' => $attempt->id, 
@@ -140,6 +133,16 @@ class StudentC extends BaseController
                         'question_option_id' => $option
                     ]);
                 }
+            }
+            else if (!is_null($answer)){ // fill-in question
+                $attempt_answer = Course_attempt_answer::Create([
+                    'course_attempt_id' => $attempt->id, 
+                    'quiz_question_id' => $attempt->question_id,
+                    'answer' => $answer
+                ]);
+            }
+            else {
+                dd('system error: wrong type of question');
             }
             // session()->flash('message', "作答完成"); // C.T.Lin
             return back()->with('status', '答案已提交');

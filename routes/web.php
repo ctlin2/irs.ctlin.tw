@@ -14,6 +14,7 @@ use App\Http\Controllers\LoginC;
 //use App\Http\Middleware\KSUAuthMiddleware;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
+use Onecentlin\Adminer\Http\Controllers\AdminerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -96,6 +97,7 @@ Route::middleware('ksu')->group(function () {
         Route::get('quiz_answer_detail', [QuizC::class, 'quizAnswerDetail']);
         Route::post('quiz_answer_detail',[QuizC::class, 'quizAnswerDetailPost']); // added by C.T.Lin
     });
+    Route::any('adminer', [AdminerController::class, 'index']); // C.T.Lin
 });
 
 Route::prefix('student')->group(function(){

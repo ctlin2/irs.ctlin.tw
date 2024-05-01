@@ -15,7 +15,7 @@ Head(title="答題分析")
             | 未答題當做缺席
         PrimaryButton(@click="addLeave")
             | 未答題當做早退
-    .flex.gap-4.p-4.justify-center(v-if="q_type_id !== 3")
+    .flex.gap-4.p-4.justify-center(v-if="q_type_id === 1 || q_type_id === 2")
         .flex.flex-col.truncate(v-for="(item, index) in q_options" style="width: 250px;")
             .flex.p-4.justify-center
                 | 選擇人數：{{ getCount(getStudents(item.id)) }}
@@ -27,7 +27,7 @@ Head(title="答題分析")
             //    | {{ item.is_correct ? '正確' : '錯誤' }}
             div(v-for="(std, s_index) in getStudents(item.id)" class="odd:bg-gray-200 even:bg-violet-200 py-2 px-4")
                 | {{ std.std_no }} {{ std.std_name }}
-    .flex.flex-wrap.gap-4.p-4.justify-center(v-if="q_type_id=== 3")
+    .flex.flex-wrap.gap-4.p-4.justify-center(v-if="q_type_id===3")
         .flex(v-for="(item, index) in std_answers")
             .flex.px-4.py-2.mb-2.min-w-fit.font-medium(:class="[showCorrect ? getCorrectStyle(is_correct(item.std_id)) : 'bg-gray-200', 'outline-1 outline-offset-1 outline-black']")
                 | {{ item.std_no }} {{ item.std_name }}:「{{ item.answer }}」 {{ correct_wrong(item.std_id) }}

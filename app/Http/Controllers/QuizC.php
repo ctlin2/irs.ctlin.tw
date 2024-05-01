@@ -414,20 +414,24 @@ class QuizC extends BaseController
 //         $students = Student::where('course_id', $quiz_rd->course_id)->get();
         $q_options = QuestionOption::where('question_id', $quiz_rd->question_id)->get();
 //         $answers = Course_attempt::where('course_quiz_id', $course_quiz_id)->get();
-        $answers = Course_attempt::where('course_quiz_id', $course_quiz_id)
-                    ->join('students', 'course_attempts.std_id', '=', 'students.id')
-                    ->join('course_attempt_answers', 'course_attempt_answers.course_attempt_id', '=', 'course_attempts.id')
-                    ->select('course_attempt_answers.course_attempt_id', // added by C.T.Lin
-                        'course_attempt_answers.question_option_id', // for multichoice question
-                        'course_attempt_answers.answer',  // for fill-in question
-                        'course_attempts.std_id', // added by C.T.Lin
-                        'students.std_no', 'students.std_name')
-                    ->orderby('course_attempt_answers.created_at')
-                    ->get();
-        
+
         // find quiz question type
         $question = Question::find(Course_quiz::find($course_quiz_id)->question_id);
         $q_type_id = $question->question_type_id;
+
+        $answers = Course_attempt::where('course_quiz_id', $course_quiz_id)
+            ->join('students', 'course_attempts.std_id', '=', 'students.id')
+            ->join('course_attempt_answers', 'course_attempt_answers.course_attempt_id', '=', 'course_attempts.id')
+            ->select('course_attempt_answers.course_attempt_id', // added by C.T.Lin
+                'course_attempt_answers.question_option_id', // for multichoice question
+                'course_attempt_answers.answer',  // for fill-in question
+                'course_attempts.std_id', // added by C.T.Lin
+                'students.std_no', 'students.std_name')
+            ->orderby('course_attempt_answers.created_at')
+            ->get();
+        
+        // dd($answers);
+        
         $correct_answers = null;
         if ($q_type_id == 3)
             $correct_answers = Course_attempt::where('course_quiz_id', $course_quiz_id)

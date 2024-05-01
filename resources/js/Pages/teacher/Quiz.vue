@@ -4,7 +4,9 @@ Head(title="出題測驗")
 
 BaseLayout
     template(#left)
-        .flex.justify-center.p-4.text-white.text-2xl
+        .flex.justify-center.p-1.text-white.text-2xl
+            | {{ currentCourseName ?? '未知' }}
+        .flex.justify-center.p-1.text-white.text-2xl
             | 日期：{{ currentCourseDate ?? '未知' }}
 
         .border.border-white.border-collapse.overflow-y-auto(style="max-height: 700px;")

@@ -169,6 +169,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         Barryvdh\Debugbar\ServiceProvider::class, // added by C.T.Lin
+        Onecentlin\Adminer\ServiceProvider::class, // added by C.T.Lin
     ])->toArray(),
 
     /*
