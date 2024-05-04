@@ -3,12 +3,11 @@
 </script>
 
 <template lang="pug">
-.h-screen.flex.flex-col
-    .w-full.h-full.flex.overflow-y-hidden
-        .flex.flex-col.gap-4.bg-black.p-4(style="width: 350px;")
-            slot(name="left")
-        .flex-1.flex.flex-col.overflow-y-auto.max-h-screen
-            slot
+.h-screen.w-full.flex.flex-row.flex-wrap
+    .h-screen.flex-initial.flex-col.gap-2.bg-black.p-2(style="width: 340px;")
+        slot(name="left")
+    .h-screen.flex-1.flex-col.overflow-y-auto.max-h-screen
+        slot
 </template>
 
 <style scoped>

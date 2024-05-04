@@ -12,7 +12,7 @@ BaseLayout
         .flex.justify-end.items-center.px-2
             div
                 .text-red-300.cursor-pointer.px-2(v-if="is_multiple" @click="disable_multiple").
-                    取消
+                    單選
                 .text-blue-300.cursor-pointer.px-2(v-else @click="enable_multiple").
                     多選
         .border.border-white.border-collapse.overflow-y-auto(style="max-height: 700px;")
@@ -38,7 +38,7 @@ BaseLayout
     .flex-1.flex.flex-col.overflow-y-auto.max-h-screen
         .bg-cyan-400.flex(class="h-[52px]")
         .flex-1.flex.flex-col.p-4.gap-4
-            .flex.gap-4
+            .flex.flex-wrap.gap-4
                 PrimaryButton(@click="add_group") 新增組別
                 PrimaryButton(@click="del_group" class="!bg-red-400") 刪除組別
                 PrimaryButton(@click="sample_group") 抽組別
@@ -50,7 +50,8 @@ BaseLayout
                     TextInput.text-center(v-model="point_step" @change="change_point_step" style="width: 100px;")
                 PrimaryButton(@click="toQuizPage") 出題測驗
                 PrimaryButton(@click="toRankingPage") 排行榜
-            .grid.grid-cols-4.gap-4
+            //-.grid.grid-cols-5.gap-4
+            .flex.flex-row.flex-wrap.gap-4
                 GroupItem(v-for="(item, index) in groups" :group_info="item" :group_std="filter_students(item.group_id)"
                     :select_group="select_group_id" :select_std="select_std_id"
                     @onClickStd="set_current_std" @onClickGroup="set_current_group"

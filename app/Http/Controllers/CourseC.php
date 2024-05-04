@@ -25,7 +25,7 @@ class CourseC extends BaseController
 //        Log::info('course_test');
         $courses=Course::all();
         $students=DB::table('students as t1')->join('takes as t2', 't1.id', '=', 't2.student_id')
-            ->select('t1.*', 't2.course_id')->get(); // ToDo: student list depend on a course
+            ->select('t1.*', 't2.course_id')->orderBy('t1.std_no', 'ASC')->get(); // ToDo: student list depend on a course
         if($req->has('json')) {
             return response()->json(['course' => $courses]);
         }else{
@@ -308,6 +308,7 @@ class CourseC extends BaseController
             ->join('students as t2', 't1.std_id', '=', 't2.id')
             ->where('t1.course_id', $course_id)
             ->where('t1.course_date', $course_date)
+            ->orderBy('t2.std_no', 'ASC')
             ->select('t1.*', 't2.std_no', 't2.std_name');
 
         if ($s_points->count() == 0) {

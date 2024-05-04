@@ -35,8 +35,8 @@ BaseLayout
                     | 測驗時間
                     input.rounded-md.text-center(style="width: 100px;" type="number" list="expire_time" min="0" v-model="expireTime")
                     datalist#expire_time
-                        option(value="5")
-                        option(value="10")
+                        option(value="1")
+                        option(value="3")
                         option(value="15")
                     | 分鐘
                     PrimaryButton(@click="submitAddQuiz") 發佈
@@ -125,7 +125,7 @@ const props = defineProps({
 const showQRCode = ref<boolean>(false);
 // current search topic id
 const topicId = ref<number>(null);
-const expireTime = ref<number>(5);
+const expireTime = ref<number>(3);
 const currentQuestionId = ref<number>();
 const currentQuestionInfo = ref<QuesType>({
     id: null,

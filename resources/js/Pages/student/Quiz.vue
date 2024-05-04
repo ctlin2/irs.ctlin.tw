@@ -5,13 +5,13 @@ Head(title="課堂測驗")
 .w-screen.h-screen.flex.flex-col
     .bg-cyan-400.flex(class="h-[52px]")
     .flex.flex-col.gap-4.p-4.items-center
-        .flex-flex-col.gap-4.p-4.text-3xl(v-if="hasNotQuiz")
+        .flex-flex-col.gap-2.p-4.text-3xl(v-if="hasNotQuiz")
             | 尚無測驗
-        .flex-flex-col.gap-4.p-4(v-else)
+        .flex-flex-col.w-full.gap-2.p-2(v-else)
             div
                 | {{ question.name }}
-            img(v-show="question.media_type == 'image'" :src="url" style="max-width:700px;").mx-auto.w-80
-            //- img added by C.T.Lin //
+            img(v-show="question.media_type == 'image'" :src="url").mx-auto.max-w-80
+            //- img added by C.T.Lin style="max-width:700px;"//
             .py-4.px-8
                 div(v-if="multichoice").flex.flex-col.gap-4
                     label.flex.gap-2.items-center(v-for="(item, index) in q_option")
@@ -22,8 +22,8 @@ Head(title="課堂測驗")
                         | {{ item.name }}
             .p-1
                 div(v-if="question.question_type_id === 3").flex.flex-col.gap-4
-                    InputLabel(v-if="question.question_type_id === 3" value="填充題答案:").text-lg
-                    TextInput(v-if="question.question_type_id === 3" v-model="answer")
+                    InputLabel(value="填充題答案:").text-lg
+                    TextInput(v-model="answer").w-full
             PrimaryButton(@click="submit") 送出
             | {{ timeLeft }}
             div.text-red-500(v-if="e_msg !== ''") {{ e_msg }}

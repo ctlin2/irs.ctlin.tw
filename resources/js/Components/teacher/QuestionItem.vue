@@ -4,7 +4,7 @@
     SimpleTopic(:topic="topics" v-model="topic")
     .flex.flex-col
         div 題目：
-        textarea.rounded-md(style="width: 700px; height: 80px;" v-model="question.name")
+        textarea.rounded-md.resize-x(style="width: 100%; height: 80px;" v-model="question.name")
         img(v-show="question.media_type == 'image'" :src="url" style="max-width:700px;").w-128
         //- img added by C.T.Lin //  
     .flex 
@@ -12,7 +12,7 @@
     .flex.flex-col.gap-2(v-for="(item, index) in options")
         | 選項 {{ index + 1 }}
         .flex.items-center.gap-2
-            textarea.rounded-md(style="width: 600px; height: 60px;" v-model="item.name" )
+            textarea.rounded-md.resize-x(style="width: calc(100% - 170px); height: 60px;" v-model="item.name" )
             label.flex.gap-2
                 div 正確答案
                 TextInput(type="checkbox" :value="item.id" name="isCorrect" v-model="option_indices" :checked="item.is_correct" @click="toggleChecked(item)")

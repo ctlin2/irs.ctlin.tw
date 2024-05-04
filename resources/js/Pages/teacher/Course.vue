@@ -25,8 +25,8 @@
         <div class="h-[52px] bg-cyan-400 flex">
         </div>
         <div class="flex-1 flex flex-col p-4 gap-4">
-            <div class="w-full flex items-center gap-4">
-                <div class="w-1/3 flex">
+            <div class="w-full flex flex-wrap items-center gap-4">
+                <div class="min-w-fit flex">
                     <select class="appearance-none rounded-md px-2 py-1 flex-1" v-model="current_course_id">
                         <option v-for="(item, index) in courses" :value="item.id">
                             {{ item.course_name }} - {{ item.class_name }}
@@ -43,13 +43,13 @@
                     <PrimaryButton @click="toTopicPage">主題管理</PrimaryButton>
                 </div>
             </div>
-            <div class="flex gap-4">
-                <input type="date" class="appearance-none rounded-md" v-model="today" />
+            <div class="flex flex-wrap gap-4">
+                <input type="date" class="min-w-fit appearance-none rounded-md" v-model="today" />
                 <PrimaryButton @click="to_course_home_page">進入課程</PrimaryButton>
             </div>
             <template v-if="current_course_id">
-                <form class="flex gap-4 w-1/3" @submit.prevent="upload_students">
-                    <input type="file" class="flex-1" required @input="form_data.std_xls = $event.target.files" />
+                <form class="flex flex-wrap gap-4 w-1/3" @submit.prevent="upload_students">
+                    <input type="file" class="min-w-fit flex-1" required @input="form_data.std_xls = $event.target.files" />
                     <PrimaryButton class="!bg-blue-400" type="submit">上傳</PrimaryButton>
                 </form>
                 <div class="flex flex-col">
@@ -60,7 +60,7 @@
                     班級名稱：
                     <TextInput type="text" v-model="current_course_info.class_name" />
                 </div>
-                <div class="flex gap-4">
+                <div class="flex flex-wrap gap-4">
                     <div class="flex flex-col">
                         學生預設點數：
                         <TextInput type="text" v-model="current_course_info.def_s_point" />
@@ -78,7 +78,7 @@
                         <TextInput type="text" v-model="current_course_info.att_status_1" />
                     </div>
                 </div>
-                <div class="flex gap-4">
+                <div class="flex flex-wrap gap-4">
                     <div class="flex flex-col">
                         遲到：
                         <TextInput type="text" v-model="current_course_info.att_status_2" />
