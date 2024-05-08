@@ -571,11 +571,10 @@ class QuizC extends BaseController
             $sql = <<<EOD
             select course_attempts.id as course_attempt_id, course_attempts.std_id
             from course_attempts  
-            join course_quizzes
-            on course_attempts.course_quiz_id = course_quizzes.id
-            where course_quizzes.id = :in_course_quiz_id
-            and 
-            course_attempts.id not in (
+            join course_quizzes as QZ
+            on course_attempts.course_quiz_id = QZ.id
+            where QZ.id = :in_course_quiz_id
+            and course_attempts.id not in (
             (
                 select course_attempts.id 
                 from course_attempt_answers
@@ -585,22 +584,24 @@ class QuizC extends BaseController
                 on course_quizzes.question_id = question_options.question_id
                 join course_attempts 
                 on course_attempts.id = course_attempt_answers.course_attempt_id
-                where question_options.is_correct = 0
+                where question_options.is_correct = 0 and course_attempts.course_quiz_id = QZ.id
             ) 
             union 
             (
-                select course_attempts.id
-                from question_options
-                join course_quizzes
-                on question_options.question_id = course_quizzes.question_id
-                join course_attempts
-                on course_attempts.course_quiz_id = course_quizzes.id
-                where question_options.is_correct = 1
-                and question_options.id NOT IN (
+            select A.id
+            from course_attempts as A
+            join course_quizzes
+            on A.course_quiz_id = course_quizzes.id
+            join question_options
+            on question_options.question_id = course_quizzes.question_id
+            where question_options.is_correct = 1 and A.course_quiz_id = QZ.id
+            and question_options.id NOT IN (
                 select question_option_id 
                 from course_attempt_answers
-                join course_attempts
-                on course_attempts.id = course_attempt_answers.course_attempt_id)
+                join course_attempts as B
+                on B.id = course_attempt_answers.course_attempt_id
+                where B.course_quiz_id = QZ.id
+                and B.id = A.id)
             ))
             EOD;
             $correct_attempts = DB::select($sql, array('in_course_quiz_id'=>$course_attempt->course_quiz_id));

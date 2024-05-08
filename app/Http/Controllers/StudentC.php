@@ -108,10 +108,11 @@ class StudentC extends BaseController
 
         $quiz = Course_quiz::find($course_quiz_id);
         // No matter the attempt is expired or not, it must be recorded. Modified by C.T.Lin
-        $attempt = Course_attempt::create([
+
+        $attempt = Course_attempt::updateOrCreate([
             'course_quiz_id' => $course_quiz_id, 
             'std_id' => $std_id,
-        ]);
+        ],[]);
 
         $cts = Carbon::now();
         $expired_at = Carbon::parse($quiz->expired_at);
