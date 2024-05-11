@@ -70,6 +70,9 @@ import TextInput from "@/Components/TextInput.vue";
 
 
 const props = defineProps({
+    course_date: {
+        type: String,
+    },
     course: {
         type: Object,
     },
@@ -319,8 +322,8 @@ const toQuizPage = () => {
 const toRankingPage = () => {
     // console.log(`course_id = ${course_id}, course_date = ${course_date}`)
     router.get('/teacher/ranking_list', {
-        // course_id: course_id,
-        // course_date: course_date,
+        course_id: props.course.id,
+        course_date: props.course_date,
     });
 }
 

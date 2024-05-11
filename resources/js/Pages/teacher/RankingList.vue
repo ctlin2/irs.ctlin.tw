@@ -13,7 +13,7 @@ BaseLayout
             .bg-white.px-4.py-2.border-y.border-gray-400.select-none.flex.justify-between(v-for="(item, index) in orig_students")
                 //- :class="['hover:bg-gray-200', {'from-cyan-400 to-10% to-transparent bg-gradient-to-r': has_in_select_std(item.id)}, ]"
                 //- @click="set_current_std(item.id)")
-                .flex
+                .flex(:class="[{'text-red-500': is_absent(item.status)}]")
                     | {{ item.std_no }} {{ item.std_name }}
                 .flex.gap-2
                     span
@@ -46,7 +46,7 @@ BaseLayout
                 tr(v-for="(item, index) in students")
                     td.text-center {{ index + 1 }}
                     td.text-center(v-for="(t_item, t_index) in std_table_val")
-                        | {{ item[t_item] }}
+                        span(:class="[{'text-red-500': is_absent(item['status'])}]") {{ item[t_item] }}
 
 </template>
 
@@ -74,8 +74,8 @@ const current_date = ref<string>(props.current_lookup_date);
 
 const group_table_title = ref(['排名', '組別', '分數']);
 const group_table_val = ref(['no', 'g_point']);
-const std_table_title = ref(['排名', '姓名', '分數']);
-const std_table_val = ref(['std_name', 's_point']);
+const std_table_title = ref(['排名', '姓名', '分數', '組別']);
+const std_table_val = ref(['std_name', 's_point', 'group_no']);
 
 /* computed */
 
@@ -94,6 +94,7 @@ const students = computed<Array<Student>>(() => props.students);
 const orig_students = computed<Array<Student>>(() =>  _.sortBy(props.students, 'std_no'));   
 const groups = computed<Array<Group>>(() => props.groups);
 
+const is_absent = (std_status) => std_status === 4; // TODO
 const table_data = computed(() => {
 
 });

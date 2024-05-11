@@ -67,7 +67,7 @@ class PointC extends BaseController
             return response()->json(['g_points' => $g_points]);
         }
 
-        $course_date_list=S_point::distinct()->pluck('course_date');
+        $course_date_list=S_point::where('course_id', $course_id)->distinct()->pluck('course_date');
         if ($req->has('json')) {
             return response()->json(['course' => $course, 'students' => $s_points, 'groups' => $g_points,'course_date_list'=>$course_date_list]);
         } else {

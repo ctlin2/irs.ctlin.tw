@@ -328,6 +328,7 @@ class CourseC extends BaseController
         } else {
             return Inertia::render('teacher/Home',
                 [
+                    'course_date' => $course_date,
                     'course' => $course,
                     'students' => $s_points,
                     'groups' => $g_points
