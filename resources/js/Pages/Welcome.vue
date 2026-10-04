@@ -207,7 +207,7 @@ defineProps({
 
             <div class="mt-16">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-                    <a href="/student/login"
+                    <div
                         class="scale-100 p-6 bg-white dark:bg-gray-800/50 dark:bg-gradient-to-bl from-gray-700/50 via-transparent dark:ring-1 dark:ring-inset dark:ring-white/5 rounded-lg shadow-2xl shadow-gray-500/20 dark:shadow-none flex motion-safe:hover:scale-[1.01] transition-all duration-250 focus:outline focus:outline-2 focus:outline-red-500">
                         <div>
                             <div
@@ -226,14 +226,16 @@ defineProps({
                                 沒有帳號，請點擊右上角「Register」註冊新帳號。<br>
                                 註冊後，請點擊Dashboard右上角的Profile，Student Number欄位填入您的學號。
                             </p>
+                            <div class="mt-5 flex flex-wrap gap-3">
+                                <a href="/student/login" class="inline-flex items-center rounded-md bg-cyan-700 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-800 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-cyan-700">
+                                    進入作答
+                                </a>
+                                <a href="/student/history" class="inline-flex items-center rounded-md border border-cyan-700 px-4 py-2 text-sm font-medium text-cyan-800 hover:bg-cyan-50 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-cyan-700">
+                                    答題檢討
+                                </a>
+                            </div>
                         </div>
-
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            class="self-center shrink-0 stroke-red-500 w-6 h-6 mx-6">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
-                        </svg>
-                    </a>
+                    </div>
 
                     <a href="/teacher/course"
                         class="scale-100 p-6 bg-white dark:bg-gray-800/50 dark:bg-gradient-to-bl from-gray-700/50 via-transparent dark:ring-1 dark:ring-inset dark:ring-white/5 rounded-lg shadow-2xl shadow-gray-500/20 dark:shadow-none flex motion-safe:hover:scale-[1.01] transition-all duration-250 focus:outline focus:outline-2 focus:outline-red-500">
@@ -261,7 +263,7 @@ defineProps({
                         </svg>
                     </a>
 
-                    <a href="/teacher/quiz"
+                    <div
                         class="scale-100 p-6 bg-white dark:bg-gray-800/50 dark:bg-gradient-to-bl from-gray-700/50 via-transparent dark:ring-1 dark:ring-inset dark:ring-white/5 rounded-lg shadow-2xl shadow-gray-500/20 dark:shadow-none flex motion-safe:hover:scale-[1.01] transition-all duration-250 focus:outline focus:outline-2 focus:outline-red-500">
                         <div>
                             <div
@@ -278,20 +280,16 @@ defineProps({
                             <p class="mt-4 text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
                                 臨時出題
                             </p>
-                            
-                            <h2 class="mt-6 text-xl font-semibold text-gray-900 dark:text-white">答題檢討</h2>
-                            <p class="mt-4 text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
-                                學生答題狀況
-                            </p>
-                            
+                            <div class="mt-5 flex flex-wrap gap-3">
+                                <a href="/teacher/quiz" class="inline-flex items-center rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-red-600">
+                                    前往出題
+                                </a>
+                                <a href="/teacher/quiz_summary" class="inline-flex items-center rounded-md border border-red-600 px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-50 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-red-600">
+                                    測驗總覽
+                                </a>
+                            </div>
                         </div>
-
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                            class="self-center shrink-0 stroke-red-500 w-6 h-6 mx-6">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
-                        </svg>
-                    </a>
+                    </div>
 
                     <a href="teacher/ranking_list"
                         class="scale-100 p-6 bg-white dark:bg-gray-800/50 dark:bg-gradient-to-bl from-gray-700/50 via-transparent dark:ring-1 dark:ring-inset dark:ring-white/5 rounded-lg shadow-2xl shadow-gray-500/20 dark:shadow-none flex motion-safe:hover:scale-[1.01] transition-all duration-250 focus:outline focus:outline-2 focus:outline-red-500">

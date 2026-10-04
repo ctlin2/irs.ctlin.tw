@@ -407,6 +407,42 @@ class QuizC extends BaseController
         }
     }
 
+    public function quizSummary(){
+        $quizzes = DB::table('course_quizzes as quiz')
+            ->join('courses as course', 'quiz.course_id', '=', 'course.id')
+            ->join('questions as question', 'quiz.question_id', '=', 'question.id')
+            ->leftJoin('course_attempts as attempt', function ($join) {
+                $join->on('attempt.course_quiz_id', '=', 'quiz.id')
+                    ->whereNull('attempt.deleted_at');
+            })
+            ->select(
+                'quiz.id as quiz_id',
+                'quiz.course_id',
+                'course.course_name',
+                'course.class_name',
+                DB::raw('DATE(quiz.created_at) as quiz_date'),
+                'question.name as question_name',
+                'quiz.created_at',
+                'quiz.expired_at',
+                DB::raw('COUNT(attempt.id) as attempt_count')
+            )
+            ->groupBy(
+                'quiz.id',
+                'quiz.course_id',
+                'course.course_name',
+                'course.class_name',
+                'question.name',
+                'quiz.created_at',
+                'quiz.expired_at'
+            )
+            ->orderByDesc('quiz.created_at')
+            ->get();
+
+        return Inertia::render('teacher/QuizSummary', [
+            'quizzes' => $quizzes,
+        ]);
+    }
+
     public function quizAnswerDetail(Request $req){
         $course_quiz_id = $req->get('course_quiz_id');
 

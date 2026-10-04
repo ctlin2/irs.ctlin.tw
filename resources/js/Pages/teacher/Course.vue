@@ -42,6 +42,9 @@
                 <div class="">
                     <PrimaryButton @click="toTopicPage">主題管理</PrimaryButton>
                 </div>
+                <div class="">
+                    <PrimaryButton @click="toQuizSummary">測驗總覽</PrimaryButton>
+                </div>
             </div>
             <div class="flex flex-wrap gap-4">
                 <input type="date" class="min-w-fit appearance-none rounded-md" v-model="today" />
@@ -203,6 +206,10 @@ const toQuestionPage = () => {
 
 const toTopicPage = () => {
     router.get('/teacher/topic');
+}
+
+const toQuizSummary = () => {
+    router.get('/teacher/quiz_summary');
 }
 
 // fetch students dynamically

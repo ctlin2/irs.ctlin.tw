@@ -210,6 +210,104 @@ class StudentC extends BaseController
             ->header('Access-Control-Allow-Headers','X-Requested-With, Content-Type');
     }
 
+    public function history(Request $req){
+        $student = Student::where('id', session('std_id'))
+            ->where('user_id', $req->user()->id)
+            ->first();
+
+        if (!$student) {
+            session()->forget('std_id');
+            return redirect('/student/login');
+        }
+
+        $attempts = DB::table('course_attempts as attempt')
+            ->join('course_quizzes as quiz', 'attempt.course_quiz_id', '=', 'quiz.id')
+            ->join('courses as course', 'quiz.course_id', '=', 'course.id')
+            ->join('questions as question', 'quiz.question_id', '=', 'question.id')
+            ->where('attempt.std_id', $student->id)
+            ->whereNull('attempt.deleted_at')
+            ->select(
+                'attempt.id as attempt_id',
+                'attempt.updated_at as answered_at',
+                'quiz.id as quiz_id',
+                'quiz.question_id',
+                'quiz.created_at as quiz_created_at',
+                'course.id as course_id',
+                'course.course_name',
+                'course.class_name',
+                'question.name as question_name',
+                'question.answer as expected_answer'
+            )
+            ->orderByDesc('quiz.created_at')
+            ->get();
+
+        $answersByAttempt = collect();
+        $optionsByQuestion = collect();
+        if ($attempts->isNotEmpty()) {
+            $optionsByQuestion = DB::table('question_options')
+                ->whereIn('question_id', $attempts->pluck('question_id')->unique())
+                ->whereNull('deleted_at')
+                ->orderBy('id')
+                ->get(['id', 'question_id', 'name', 'is_correct'])
+                ->groupBy('question_id');
+
+            $answersByAttempt = DB::table('course_attempt_answers as answer')
+                ->leftJoin('question_options as option', 'answer.question_option_id', '=', 'option.id')
+                ->whereIn('answer.course_attempt_id', $attempts->pluck('attempt_id'))
+                ->whereNull('answer.deleted_at')
+                ->orderBy('answer.created_at')
+                ->get([
+                    'answer.course_attempt_id',
+                    'answer.question_option_id',
+                    'answer.answer as text_answer',
+                    'option.name as option_name',
+                ])
+                ->groupBy('course_attempt_id');
+        }
+
+        $history = $attempts->map(function ($attempt) use ($answersByAttempt, $optionsByQuestion) {
+            $attemptAnswers = $answersByAttempt->get($attempt->attempt_id, collect());
+            $selectedOptionIds = $attemptAnswers->pluck('question_option_id')
+                ->filter()
+                ->map(fn ($id) => (int) $id)
+                ->all();
+            $responses = $attemptAnswers
+                ->map(fn ($answer) => $answer->option_name ?? $answer->text_answer)
+                ->filter(fn ($answer) => $answer !== null && $answer !== '')
+                ->values();
+            $options = $optionsByQuestion->get($attempt->question_id, collect())
+                ->map(fn ($option) => [
+                    'id' => $option->id,
+                    'name' => $option->name,
+                    'is_correct' => (bool) $option->is_correct,
+                    'is_selected' => in_array((int) $option->id, $selectedOptionIds, true),
+                ])
+                ->values();
+
+            return [
+                'attempt_id' => $attempt->attempt_id,
+                'quiz_id' => $attempt->quiz_id,
+                'course_id' => $attempt->course_id,
+                'course_name' => $attempt->course_name,
+                'class_name' => $attempt->class_name,
+                'quiz_date' => substr($attempt->quiz_created_at, 0, 10),
+                'question_name' => $attempt->question_name,
+                'answers' => $responses,
+                'options' => $options,
+                'expected_answer' => $attempt->expected_answer,
+                'answered_at' => $attempt->answered_at,
+            ];
+        });
+
+        return Inertia::render('student/History', [
+            'history' => $history,
+            'student' => [
+                'std_no' => $student->std_no,
+                'std_name' => $student->std_name,
+            ],
+        ]);
+    }
+
     private function hasSessionInfo(){
         return session()->has('std_id');
     }

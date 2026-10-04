@@ -93,6 +93,7 @@ Route::middleware('ksu')->group(function () {
 
         Route::get('quiz', [QuizC::class, 'quiz']);
         Route::post('quiz', [QuizC::class, 'quizPost']);
+        Route::get('quiz_summary', [QuizC::class, 'quizSummary']);
 
         Route::get('quiz_answer_detail', [QuizC::class, 'quizAnswerDetail']);
         Route::post('quiz_answer_detail',[QuizC::class, 'quizAnswerDetailPost']); // added by C.T.Lin
@@ -105,6 +106,7 @@ Route::prefix('student')->group(function(){
     Route::post('login',[StudentC::class,'loginPost'])->middleware(['auth', 'verified']);
     Route::get('quiz',[StudentC::class,'quiz'])->middleware(['auth', 'verified'])->name('student.quiz');
     Route::post('quiz',[StudentC::class,'quizPost'])->middleware(['auth', 'verified']);
+    Route::get('history',[StudentC::class,'history'])->middleware(['auth', 'verified'])->name('student.history'); // Added history route
     Route::get('list',[StudentC::class,'list'])->middleware(['auth', 'verified'])->name('student.list'); // C.T.Lin
 });
 

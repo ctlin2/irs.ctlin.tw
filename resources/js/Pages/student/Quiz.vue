@@ -3,7 +3,8 @@
 Head(title="課堂測驗")
 
 .w-screen.h-screen.flex.flex-col
-    .bg-cyan-400.flex(class="h-[52px]")
+    header.bg-cyan-600.flex.items-center.justify-end.px-4(class="h-[52px]")
+        PrimaryButton(type="button" @click="router.get('/student/history')") 過去作答紀錄
     .flex.flex-col.gap-4.p-4.items-center
         .flex-flex-col.gap-2.p-4.text-3xl(v-if="hasNotQuiz")
             | 尚無測驗
@@ -32,7 +33,7 @@ Head(title="課堂測驗")
 
 <script setup lang="ts">
 import { ref, reactive, computed, defineProps, onMounted, watch } from 'vue';
-import {Head, useForm} from '@inertiajs/vue3';
+import {Head, router, useForm} from '@inertiajs/vue3';
 import * as _ from 'lodash';
 import { Question, QOption, CourseQuiz} from '@/Components/teacher/UtilsType';
 import InputLabel from "@/Components/InputLabel.vue";
