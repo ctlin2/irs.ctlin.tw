@@ -181,7 +181,7 @@ class StudentC extends BaseController
                 // ->where('created_at', '<=', $cts)
                 ->where('expired_at', '>', $cts) 
                 ->whereNotIn('id', $after_ans_quiz_ids)
-                ->orderBy('created_at', 'desc')
+                ->orderBy('expired_at', 'ASC')
                 ->first();  // TODO, bug?
 
         if (!is_null($quiz)) {

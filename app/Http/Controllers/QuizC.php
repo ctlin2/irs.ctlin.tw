@@ -329,7 +329,7 @@ class QuizC extends BaseController
             }
         }
         $q_ids=$questions->pluck('id')->all();
-        $q_options=QuestionOption::whereIn('question_id',$q_ids)->get(['id','question_id','name']);
+        $q_options=QuestionOption::whereIn('question_id',$q_ids)->get(['id','question_id','name', 'media_type']);
 
         $topics=DB::select("CALL get_all_topic()");
 
@@ -624,7 +624,7 @@ class QuizC extends BaseController
 
         // get students from s_points for course date
         $s_points = S_point::where('course_id', '=', session('course_id'))
-        ->where('course_date', '=', Carbon::parse(session('corse_date'))->format('Y-m-d'))
+        ->where('course_date', '=', Carbon::parse(session('course_date'))->format('Y-m-d'))
         ->whereIn('std_id', $student_id_array)
         // ->get();
         ->update(['status' => 0]); // 出席
@@ -635,7 +635,7 @@ class QuizC extends BaseController
         
         // get students from s_points for course date
         $s_points = S_point::where('course_id', '=', session('course_id'))  // $course_quiz->course_id
-        ->where('course_date', '=', Carbon::parse(session('corse_date'))->format('Y-m-d'))
+        ->where('course_date', '=', Carbon::parse(session('course_date'))->format('Y-m-d'))
         ->whereNotIn('std_id', $student_id_array)
         ->update(['status' => 4]); // 缺席
     }
@@ -645,7 +645,7 @@ class QuizC extends BaseController
         
         // get students from s_points for course date
         $s_points = S_point::where('course_id', '=', session('course_id'))
-        ->where('course_date', '=', Carbon::parse(session('corse_date'))->format('Y-m-d'))
+        ->where('course_date', '=', Carbon::parse(session('course_date'))->format('Y-m-d'))
         ->whereNotIn('std_id', $student_id_array)
         ->get();
 

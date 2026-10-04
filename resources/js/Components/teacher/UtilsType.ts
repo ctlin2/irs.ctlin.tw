@@ -21,6 +21,7 @@ export interface QOption {
     question_id?: number,
     name: string,
     is_correct?: boolean,
+    media_type?: string, // added by C.T.Lin
 }
 
 export interface Course {

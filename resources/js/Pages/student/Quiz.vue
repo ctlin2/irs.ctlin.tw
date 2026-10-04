@@ -8,8 +8,8 @@ Head(title="課堂測驗")
         .flex-flex-col.gap-2.p-4.text-3xl(v-if="hasNotQuiz")
             | 尚無測驗
         .flex-flex-col.w-full.gap-2.p-2(v-else)
-            div
-                | {{ question.name }}
+            div(v-html="DOMPurify.sanitize(question.name)")
+                //- | {{ question.name }}
             img(v-show="question.media_type == 'image'" :src="url").mx-auto.max-w-80
             //- img added by C.T.Lin style="max-width:700px;"//
             .py-4.px-8
@@ -19,7 +19,7 @@ Head(title="課堂測驗")
                         TextInput(v-if="multiple_answer" type="checkbox" name="ans"
                         v-on:click="()=>{selectOpts(item.id)}") :value="item.id")
                         | {{ getAlpha(index) }}.
-                        | {{ item.name }}
+                        span(v-html="DOMPurify.sanitize(item.name)")
             .p-1
                 div(v-if="question.question_type_id === 3").flex.flex-col.gap-4
                     InputLabel(value="填充題答案:").text-lg
@@ -40,6 +40,7 @@ import TextInput from "@/Components/TextInput.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import Swal from 'sweetalert2';
 import moment from "moment";
+import DOMPurify from 'dompurify';
 
 const props = defineProps<{
     quiz: CourseQuiz,

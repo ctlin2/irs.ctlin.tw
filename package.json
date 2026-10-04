@@ -19,12 +19,16 @@
         "postcss": "^8.4.18",
         "tailwindcss": "^3.2.1",
         "vite": "^4.0.0",
-        "vue": "^3.2.41"
+        "vue": "^3.5.43"
     },
     "dependencies": {
+        "@ckeditor/ckeditor5-build-classic": "^44.3.0",
+        "@ckeditor/ckeditor5-vue": "^8.2.0",
         "@inertiajs/inertia": "^0.11.1",
         "@inertiajs/inertia-vue3": "^0.6.0",
         "@types/moment": "^2.13.0",
+        "ckeditor5": "^44.3.0",
+        "dompurify": "^3.4.16",
         "lodash": "^4.17.21",
         "moment": "^2.29.4",
         "pug": "^3.0.2",

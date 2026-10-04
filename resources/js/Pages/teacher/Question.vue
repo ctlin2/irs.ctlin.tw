@@ -9,7 +9,7 @@ BaseLayout
                 option(v-for="(item, index) in question_types" :value="item.id" :selected="item.id === currentQuestionInfo.question_type_id")
                     | {{ item.name }}
             PrimaryButton(@click="onClickAddQuestion") 新增題目
-        .border.border-white.border-collapse.overflow-y-auto(style="max-height: 700px;")
+        .border.border-white.border-collapse.overflow-y-auto.h-full
             .bg-white.px-4.py-2.border-y.border-gray-400.select-none.flex.justify-between.truncate(v-for="(item, index) in questions"
                 :class="['hover:bg-gray-200', {'from-cyan-400 to-10% to-transparent bg-gradient-to-r': currentQuestionId === item.id}, ]"
                 @click="onClickSelectedQuestion(item.id)")

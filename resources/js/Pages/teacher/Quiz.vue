@@ -61,7 +61,7 @@ BaseLayout
                     tbody
                         tr(v-for="(item, index) in quiz_list")
                             td.text-center {{ index + 1 }}
-                            td {{ item.name }}
+                            td(v-html="DOMPurify.sanitize(item.name)")
                             //td.text-center {{ item.std_answer_num }}
                             td.text-center.cursor-pointer(@click="onClickOpenAnswersAnalysis(item.id)") {{ item.std_answer_correct_num }}/{{ item.std_answer_num }}
                             td.text-center {{ format_time(item.expired_at) }}
@@ -79,6 +79,7 @@ import {ref, reactive, computed, defineProps, watch, onMounted, toRefs} from 'vu
 import {Head, router, useForm} from '@inertiajs/vue3';
 import * as _ from 'lodash';
 import moment from "moment";
+import DOMPurify from 'dompurify';
 import QrcodeVue from "qrcode.vue";
 import BaseLayout from "@/Layouts/BaseLayout.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
