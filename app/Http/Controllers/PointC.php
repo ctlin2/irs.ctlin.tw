@@ -25,10 +25,10 @@ class PointC extends BaseController
 
     public function pointBoard(Request $req){
 
-        if(!$this->hasSessionInfo()){
+        $course_id = $req->get('course_id') ?? session('course_id');
+        if(!$course_id){
             return redirect('teacher/course');
         }
-        $course_id = $req->get('course_id')?? session('course_id');
         // $course_date=Carbon::today()->format('Y-m-d');
         $course_date = $req->get('course_date')?? session('course_date');
 

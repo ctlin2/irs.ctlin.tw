@@ -105,6 +105,7 @@ const onClickSearch = () => {
     router.get('/teacher/ranking_list', {
         course_id: course_id.value,
         course_date: current_date.value,
+        ranking_type: is_show_group.value ? 'group' : 'individual',
     });
 }
 
@@ -112,11 +113,9 @@ const onClickSearch = () => {
 /* created */
 
 
-let params = new Proxy(new URLSearchParams(window.location.search), {
-    get: (searchParams: URLSearchParams, prop: string) => searchParams.get(prop),
-});
-
-current_date.value = params.course_date;
+const params = new URLSearchParams(window.location.search);
+current_date.value = params.get('course_date') ?? current_date.value;
+is_show_group.value = params.get('ranking_type') === 'group';
 
 </script>
 

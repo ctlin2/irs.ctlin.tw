@@ -42,7 +42,10 @@ main.min-h-screen.w-full.bg-gray-50
                         div
                             h3.text-lg.font-semibold.text-gray-900 {{ group.course_name }}
                             .text-sm.text-gray-600 {{ group.class_name }} · {{ group.quiz_date }}
-                        .text-sm.text-gray-600 {{ group.quizzes.length }} 份測驗 · {{ group.attempts }} 次作答
+                        .flex.flex-wrap.items-center.gap-3
+                            .text-sm.text-gray-600 {{ group.quizzes.length }} 份測驗 · {{ group.attempts }} 次作答
+                            button(type="button" class="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-800 hover:bg-gray-100" @click="openRanking(group, 'individual')") 個人排行榜
+                            button(type="button" class="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-800 hover:bg-gray-100" @click="openRanking(group, 'group')") 組別排行榜
                     .overflow-x-auto
                         table.w-full.border-collapse.text-left
                             thead
@@ -157,4 +160,9 @@ const clearFilters = () => {
 const formatDateTime = (value: string) => value?.slice(0, 16).replace('T', ' ') ?? '';
 const quizExpired = (value: string) => new Date(value.replace(' ', 'T')).getTime() < Date.now();
 const openAnalysis = (quizId: number) => router.get('/teacher/quiz_answer_detail', { course_quiz_id: quizId });
+const openRanking = (group: QuizGroup, rankingType: 'individual' | 'group') => router.get('/teacher/ranking_list', {
+    course_id: group.course_id,
+    course_date: group.quiz_date,
+    ranking_type: rankingType,
+});
 </script>
