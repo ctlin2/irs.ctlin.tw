@@ -66,7 +66,7 @@ class StudentC extends BaseController
                     }
                 }
                 session(['std_id' => $rd_student->id]);
-                return $this->enterQuiz();
+                return redirect()->route('student.quiz');
             }  else {
                 $req->merge(['msg'=>'請確認是您的正確學號']); // added by C.T.Lin
                 // return $this->toLoginPage('請確認課程或學號是否正確');

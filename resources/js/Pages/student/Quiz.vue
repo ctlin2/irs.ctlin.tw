@@ -8,7 +8,7 @@ Head(title="課堂測驗")
     .flex.flex-col.gap-4.p-4.items-center
         .flex-flex-col.gap-2.p-4.text-3xl(v-if="hasNotQuiz")
             | 尚無測驗
-        .flex-flex-col.w-full.gap-2.p-2(v-else)
+        .flex-flex-col.w-full.gap-2.p-2(v-else :key="quiz.id + '-' + question.id")
             div(v-html="DOMPurify.sanitize(question.name)")
                 //- | {{ question.name }}
             img(v-show="question.media_type == 'image'" :src="url").mx-auto.max-w-80
@@ -18,7 +18,8 @@ Head(title="課堂測驗")
                     label.flex.gap-2.items-center(v-for="(item, index) in q_option")
                         TextInput(v-if="single_answer" type="radio" name="ans" v-model="chooseAns" :value="item.id")
                         TextInput(v-if="multiple_answer" type="checkbox" name="ans"
-                        v-on:click="()=>{selectOpts(item.id)}") :value="item.id")
+                        :checked="selected.includes(item.id)"
+                        @change="selectOpts(item.id)" :value="item.id")
                         | {{ getAlpha(index) }}.
                         span(v-html="DOMPurify.sanitize(item.name)")
             .p-1
@@ -55,7 +56,7 @@ const props = defineProps<{
 var interval = null;
 
 const chooseAns = ref<number>(null);
-const selected = ref([]);
+const selected = ref<number[]>([]);
 const answer = ref(null); // for fill-in question, C.T.Lin
 const countdown = ref('00:00:00');
 
@@ -76,6 +77,17 @@ const multichoice = computed(() => props.question.question_type_id === 1 ||
                                 props.question.question_type_id === 2);
 const url = computed(() => '/storage/images/' + props.question.media_url??'noimg-200-a.png' ); // added by C.T.Lin
 const timeLeft = computed(()=> '時間剩:' + countdown.value);
+
+watch(
+    () => `${props.quiz?.id ?? ''}:${props.question?.id ?? ''}`,
+    (questionKey, previousQuestionKey) => {
+        if (questionKey === previousQuestionKey) return;
+
+        chooseAns.value = null;
+        selected.value = [];
+        answer.value = null;
+    }
+);
 
 /* methods */
 
