@@ -308,6 +308,206 @@ class StudentC extends BaseController
         ]);
     }
 
+    public function scores(Request $req)
+    {
+        $student = Student::where('id', session('std_id'))
+            ->where('user_id', $req->user()->id)
+            ->first();
+
+        if (!$student) {
+            session()->forget('std_id');
+            return redirect('/student/login');
+        }
+
+        $courses = $student->courses()
+            ->orderBy('course_name')
+            ->get(['courses.id', 'courses.course_name', 'courses.class_name']);
+
+        $courseId = (int) $req->query('course_id', $courses->first()->id ?? 0);
+        $course = $courses->firstWhere('id', $courseId) ?? $courses->first();
+
+        if (!$course) {
+            return Inertia::render('student/Scores', [
+                'courses' => [],
+                'course' => null,
+                'dates' => [],
+                'selected_date' => Carbon::today()->toDateString(),
+                'quizzes' => [],
+                'daily_leaderboard' => [],
+                'cumulative_leaderboard' => [],
+                'student' => ['std_no' => $student->std_no, 'std_name' => $student->std_name],
+            ]);
+        }
+
+        $students = $course->students()
+            ->orderBy('std_no')
+            ->get(['students.id', 'students.std_no', 'students.std_name']);
+
+        $quizRows = DB::table('course_quizzes as quiz')
+            ->join('questions as question', 'quiz.question_id', '=', 'question.id')
+            ->where('quiz.course_id', $course->id)
+            ->whereNull('quiz.deleted_at')
+            ->orderBy('quiz.created_at')
+            ->get([
+                'quiz.id',
+                'quiz.question_id',
+                'quiz.marks',
+                'quiz.created_at',
+                'question.name as question_name',
+                'question.question_type_id',
+                'question.answer as expected_answer',
+            ]);
+
+        $dates = $quizRows
+            ->map(fn ($quiz) => substr($quiz->created_at, 0, 10))
+            ->unique()
+            ->sortDesc()
+            ->values();
+        $requestedDate = $req->query('date');
+        $today = Carbon::today()->toDateString();
+        $selectedDate = is_string($requestedDate) && $dates->contains($requestedDate)
+            ? $requestedDate
+            : ($dates->contains($today) ? $today : ($dates->first() ?? $today));
+
+        $quizIds = $quizRows->pluck('id');
+        $attempts = $quizIds->isEmpty()
+            ? collect()
+            : DB::table('course_attempts')
+                ->whereIn('course_quiz_id', $quizIds)
+                ->whereIn('std_id', $students->pluck('id'))
+                ->whereNull('deleted_at')
+                ->get(['id', 'course_quiz_id', 'std_id']);
+
+        $answersByAttempt = $attempts->isEmpty()
+            ? collect()
+            : DB::table('course_attempt_answers as answer')
+                ->whereIn('answer.course_attempt_id', $attempts->pluck('id'))
+                ->whereNull('answer.deleted_at')
+                ->get([
+                    'answer.course_attempt_id',
+                    'answer.question_option_id',
+                    'answer.answer as text_answer',
+                ])
+                ->groupBy('course_attempt_id');
+
+        $correctOptionsByQuestion = $quizRows->isEmpty()
+            ? collect()
+            : DB::table('question_options')
+                ->whereIn('question_id', $quizRows->pluck('question_id')->unique())
+                ->where('is_correct', true)
+                ->whereNull('deleted_at')
+                ->get(['question_id', 'id'])
+                ->groupBy('question_id')
+                ->map(fn ($options) => $options->pluck('id')->map(fn ($id) => (int) $id)->sort()->values()->all());
+
+        $attemptsByQuiz = $attempts->groupBy('course_quiz_id');
+        $scoresByQuiz = [];
+        foreach ($quizRows as $quiz) {
+            $quizAttempts = $attemptsByQuiz->get($quiz->id, collect())->keyBy('std_id');
+            $fillInCorrectAttemptIds = [];
+            if ((int) $quiz->question_type_id === 3 && $quizAttempts->isNotEmpty() && $quiz->expected_answer) {
+                $fillInCorrectAttemptIds = DB::table('course_attempt_answers')
+                    ->whereIn('course_attempt_id', $quizAttempts->pluck('id'))
+                    ->whereNull('deleted_at')
+                    ->where('answer', 'regexp', $quiz->expected_answer)
+                    ->pluck('course_attempt_id')
+                    ->all();
+            }
+
+            foreach ($students as $classmate) {
+                $attempt = $quizAttempts->get($classmate->id);
+                $isCorrect = false;
+                if ($attempt) {
+                    $answers = $answersByAttempt->get($attempt->id, collect());
+                    if ((int) $quiz->question_type_id === 3) {
+                        $isCorrect = in_array($attempt->id, $fillInCorrectAttemptIds);
+                    } else {
+                        $selectedOptionIds = $answers->pluck('question_option_id')
+                            ->filter()
+                            ->map(fn ($id) => (int) $id)
+                            ->unique()
+                            ->sort()
+                            ->values()
+                            ->all();
+                        $correctOptionIds = $correctOptionsByQuestion->get($quiz->question_id, []);
+                        $isCorrect = $correctOptionIds !== [] && $selectedOptionIds === $correctOptionIds;
+                    }
+                }
+                $scoresByQuiz[$quiz->id][$classmate->id] = [
+                    'score' => $isCorrect ? (float) $quiz->marks : 0,
+                    'attempted' => (bool) $attempt,
+                ];
+            }
+        }
+
+        $rankLeaderboard = function (array $totals) use ($students, $student) {
+            return $students->map(function ($classmate) use ($totals, $student) {
+                $score = (float) ($totals[$classmate->id] ?? 0);
+
+                return [
+                    'student_id' => $classmate->id,
+                    'std_no' => $classmate->std_no,
+                    'std_name' => $classmate->std_name,
+                    'score' => $score,
+                    'rank' => collect($totals)->filter(fn ($total) => $total > $score)->count() + 1,
+                    'is_me' => (int) $classmate->id === (int) $student->id,
+                ];
+            })->sortBy('rank')->values();
+        };
+
+        $dailyQuizRows = $quizRows->filter(fn ($quiz) => substr($quiz->created_at, 0, 10) === $selectedDate)->values();
+        $dailyTotals = $students->mapWithKeys(fn ($classmate) => [$classmate->id => 0.0])->all();
+        foreach ($dailyQuizRows as $quiz) {
+            foreach ($students as $classmate) {
+                $dailyTotals[$classmate->id] += $scoresByQuiz[$quiz->id][$classmate->id]['score'] ?? 0;
+            }
+        }
+
+        $cumulativeTotals = $students->mapWithKeys(fn ($classmate) => [$classmate->id => 0.0])->all();
+        foreach ($quizRows as $quiz) {
+            foreach ($students as $classmate) {
+                $cumulativeTotals[$classmate->id] += $scoresByQuiz[$quiz->id][$classmate->id]['score'] ?? 0;
+            }
+        }
+
+        $quizzes = $dailyQuizRows->map(function ($quiz) use ($scoresByQuiz, $students, $student) {
+            $quizTotals = $students->mapWithKeys(fn ($classmate) => [
+                $classmate->id => $scoresByQuiz[$quiz->id][$classmate->id]['score'] ?? 0,
+            ])->all();
+            $leaderboard = collect($quizTotals)->sortDesc()->values();
+            $myScore = (float) ($quizTotals[$student->id] ?? 0);
+
+            return [
+                'id' => $quiz->id,
+                'question_name' => $quiz->question_name,
+                'time' => substr($quiz->created_at, 11, 5),
+                'marks' => (float) $quiz->marks,
+                'score' => $myScore,
+                'rank' => $leaderboard->filter(fn ($score) => $score > $myScore)->count() + 1,
+                'attempted' => $scoresByQuiz[$quiz->id][$student->id]['attempted'] ?? false,
+            ];
+        });
+
+        return Inertia::render('student/Scores', [
+            'courses' => $courses->map(fn ($item) => [
+                'id' => $item->id,
+                'course_name' => $item->course_name,
+                'class_name' => $item->class_name,
+            ])->values(),
+            'course' => [
+                'id' => $course->id,
+                'course_name' => $course->course_name,
+                'class_name' => $course->class_name,
+            ],
+            'dates' => $dates,
+            'selected_date' => $selectedDate,
+            'quizzes' => $quizzes,
+            'daily_leaderboard' => $rankLeaderboard($dailyTotals),
+            'cumulative_leaderboard' => $rankLeaderboard($cumulativeTotals),
+            'student' => ['std_no' => $student->std_no, 'std_name' => $student->std_name],
+        ]);
+    }
+
     private function hasSessionInfo(){
         return session()->has('std_id');
     }

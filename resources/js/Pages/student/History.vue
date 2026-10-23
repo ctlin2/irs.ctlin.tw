@@ -9,7 +9,9 @@ Head(title="過去作答紀錄")
                 .text-sm.text-cyan-100 學習紀錄
                 h1.mt-1.text-2xl.font-semibold 過去作答摘要
                 .mt-1.text-sm.text-cyan-50 {{ student.std_name }} · {{ student.std_no }}
-            button(type="button" class="rounded-md border border-white/60 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-700" @click="router.get('/student/quiz')") 返回測驗
+            .flex.flex-wrap.gap-2
+                button(type="button" class="rounded-md border border-white/60 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-700" @click="router.get('/student/scores')") 成績與排行榜
+                button(type="button" class="rounded-md border border-white/60 px-4 py-2 text-sm font-medium text-white hover:bg-cyan-700" @click="router.get('/student/quiz')") 返回測驗
     main.mx-auto.flex.w-full.max-w-6xl.flex-col.gap-6.px-4.py-6
         .grid.grid-cols-1.gap-3(class="sm:grid-cols-3")
             .border-l-4.border-cyan-500.bg-white.p-4

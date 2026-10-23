@@ -4,6 +4,7 @@ Head(title="課堂測驗")
 
 .w-screen.h-screen.flex.flex-col
     header.bg-cyan-600.flex.items-center.justify-end.px-4(class="h-[52px]")
+        PrimaryButton(type="button" @click="router.get('/student/scores')") 成績與排行榜
         PrimaryButton(type="button" @click="router.get('/student/history')") 過去作答紀錄
     .flex.flex-col.gap-4.p-4.items-center
         .flex-flex-col.gap-2.p-4.text-3xl(v-if="hasNotQuiz")

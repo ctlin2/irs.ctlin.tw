@@ -13,8 +13,7 @@ BaseLayout
             .bg-white.px-4.py-2.border-y.border-gray-400.select-none.flex.justify-between.w-full.min-w-0(v-for="(item, index) in questions"
                 :class="['hover:bg-gray-200', {'from-cyan-400 to-10% to-transparent bg-gradient-to-r': currentQuestionId === item.id}, ]"
                 @click="onClickSelectedQuestion(item.id)")
-                .flex.flex-1.min-w-0.whitespace-normal.break-words
-                    | {{ item.name }}
+                .flex.flex-1.min-w-0.whitespace-normal.break-words(v-html="DOMPurify.sanitize(item.name ?? '')")
 
     .flex-1.flex.flex-col.overflow-y-auto.max-h-screen
         .bg-cyan-400.flex(class="h-[52px]")
@@ -37,6 +36,7 @@ import SimpleTopic from "@/Components/teacher/SimpleTopic.vue";
 import QuestionItem from "@/Components/teacher/QuestionItem.vue";
 import { Topic, Question as QuesType, QOption } from '@/Components/teacher/UtilsType';
 import Swal from 'sweetalert2';
+import DOMPurify from 'dompurify';
 
 
 
