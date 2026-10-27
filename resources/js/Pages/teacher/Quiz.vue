@@ -10,11 +10,10 @@ BaseLayout
             | 日期：{{ currentCourseDate ?? '未知' }}
 
         .border.border-white.border-collapse.overflow-y-auto(style="max-height: 700px;")
-            .bg-white.px-4.py-2.border-y.border-gray-400.select-none.flex.justify-between.truncate(v-for="(item, index) in questions"
+            .bg-white.px-4.py-2.border-y.border-gray-400.select-none.flex.justify-between(v-for="(item, index) in questions"
                 :class="['hover:bg-gray-200', {'from-cyan-400 to-10% to-transparent bg-gradient-to-r': currentQuestionId === item.id}, ]"
                 @click="onClickSelectedQuestion(item.id)")
-                .flex
-                    | {{ item.name }}
+                .flex-1.min-w-0.whitespace-normal.break-words(v-html="DOMPurify.sanitize(item.name ?? '')")
 
     .flex-1.flex.flex-col.overflow-y-auto.max-h-screen
         .bg-cyan-400.flex(class="h-[52px]")
@@ -24,11 +23,11 @@ BaseLayout
                 PrimaryButton(@click="onClickSearch") search
             .flex.flex-col.p-4.gap-2.border.border-black.rounded-md
                 .flex.flex-col
-                    div {{ currentQuestionInfo.name }}
+                    div(v-html="DOMPurify.sanitize(currentQuestionInfo.name ?? '')")
                 .py-4.px-8
                     ol.flex.flex-col.gap-4(style="list-style-type: upper-alpha;")
                         li(v-for="(item, index) in currentQOptions")
-                            | {{ item.name }}
+                            div(v-html="DOMPurify.sanitize(item.name ?? '')")
                 img(v-show="currentQuestionInfo.media_type == 'image'" :src="url" style="max-width:700px;").mx-auto
                 //- img added by C.T.Lin //
                 .flex.items-center.gap-4
